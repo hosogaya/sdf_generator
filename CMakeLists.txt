@@ -11,10 +11,11 @@ find_package(Eigen3 REQUIRED)
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
 
-add_library(${PROJECT_NAME} INTERFACE)
+file(GLOB_RECURSE source_file "src/*.cpp")
+add_library(${PROJECT_NAME} SHARED ${source_file})
 
 target_include_directories(${PROJECT_NAME}
-    INTERFACE
+    PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
     "$<INSTALL_INTERFACE:include>"
     ${EIGEN3_INCLUDE_DIR} 
@@ -22,11 +23,11 @@ target_include_directories(${PROJECT_NAME}
     ${OpenCV_INCLUDE_DIRS}
 )
 
-# target_link_libraries(${PROJECT_NAME}
-#     ${EIGEN3_LIBRARIES}
-#     ${PCL_LIBRARIES}
-#     ${OpenCV_LIBS}
-# )
+target_link_libraries(${PROJECT_NAME}
+    ${EIGEN3_LIBRARIES}
+    ${PCL_LIBRARIES}
+    ${OpenCV_LIBS}
+)
 
 install(
     TARGETS ${PROJECT_NAME}
@@ -56,3 +57,27 @@ endif()
 ament_export_dependencies(Eigen3 PCL OpenCV)
 ament_export_targets(${PROJECT_NAME}_export)
 ament_package()
+
+function(add_sdf_test base_name)
+	add_executable(${base_name} test/${base_name}.cpp)
+    target_link_libraries(${base_name} PUBLIC
+        ${PROJECT_NAME}
+        ${EIGEN3_LIBRARIES}
+        ${PCL_LIBRARIES}
+        ${OpenCV_LIBS}
+    )
+    target_include_directories(${base_name}
+        PUBLIC
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+        "$<INSTALL_INTERFACE:include>"
+        ${EIGEN3_INCLUDE_DIR} 
+        ${PCL_INCLUDE_DIR} 
+        ${OpenCV_INCLUDE_DIRS}
+    )
+    install(
+        TARGETS ${base_name}
+        DESTINATION lib/test/${PROJECT_NAME}
+    )
+endfunction()
+
+add_sdf_test(tsdf_map)

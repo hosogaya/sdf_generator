@@ -20,6 +20,10 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "variant": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "array": "cpp",
+        "ratio": "cpp",
+        "utility": "cpp",
+        "*.txx": "cpp"
     }
 }

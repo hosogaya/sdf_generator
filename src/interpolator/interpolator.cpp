@@ -1,15 +1,8 @@
-#pragma once
-
 #include <sdf_generator/interpolator/interpolator.hpp>
 #include <sdf_generator/interpolator/util.hpp>
 
 namespace sdf_generator
 {
-template <typename VoxelType>
-Interpolator<VoxelType>::Interpolator(const typename Layer<VoxelType>::Ptr layer)
-: layer_(layer)
-{}
-
 template <typename VoxelType>
 bool Interpolator<VoxelType>::getDistance(const Point& pos, Scalar& distance, bool interpolate) const
 {
@@ -50,7 +43,7 @@ bool Interpolator<VoxelType>::getVoxel(const Point& pos,  VoxelType& voxel, bool
 }
 
 template <typename VoxelType>
-bool Interpolator<VoxelType>::getGradient(const Point& pos, Vector3& grad, bool interpolate = false) const
+bool Interpolator<VoxelType>::getGradient(const Point& pos, Vector3& grad, bool interpolate) const
 {
     typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockPtr(pos);
     if (block_ptr == nullptr) return false;

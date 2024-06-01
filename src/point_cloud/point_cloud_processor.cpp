@@ -124,7 +124,7 @@ cv::Mat PointCloudProcessor::calNormalImage(const cv::Mat& vertex_image, const c
             Vector3 dx = nx - p;
             Vector3 dy = ny - p;
 
-            Vector3 normal = (dx.cross3(dy).normalized()*sign);
+            Vector3 normal = (dx.cross(dy).normalized()*sign);
             NormalImageType& n = normal_image.at<NormalImageType>(v, u);
             for (int k=0; k<3; ++k)
             {

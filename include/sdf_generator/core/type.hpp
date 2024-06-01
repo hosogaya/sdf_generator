@@ -31,14 +31,19 @@ using InterpIndexes = Eigen::Array<IndexElement, 3, 8>;
 template <typename Type>
 using AlignedVector = std::vector<Type, Eigen::aligned_allocator<Type>>;
 // substitute for make_shared
+template <typename Type>
+using TypeNonConst = typename std::remove_const<Type>::type;
 template <typename Type, typename... Arguments>
 inline std::shared_ptr<Type> aligned_shared(Arguments&&... arguments) 
 {
-    using TypeNonConst = std::remove_const<Type>::type;
     return std::allocate_shared<Type>(
-            Eigen::aligned_allocator<TypeNonConst>(),
+            Eigen::aligned_allocator<TypeNonConst<Type>>(),
             std::forward<Arguments>(arguments)...);
 }
+
+
+using IndexVector = AlignedVector<AnyIndex>;
+using BlockIndexList = IndexVector;
 
 
 constexpr Scalar kCoordinateEpsilon = 1e-6; // used for coordinate

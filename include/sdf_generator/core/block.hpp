@@ -27,9 +27,9 @@ public:
 
     size_t calLinearIndex(const VoxelIndex& index) const
     {
-        DCHECK(index.x() >=0 && index.x() <voxels_per_side_);
-        DCHECK(index.y() >=0 && index.y() <voxels_per_side_);
-        DCHECK(index.z() >=0 && index.z() <voxels_per_side_);
+        // DCHECK(index.x() >=0 && index.x() <voxels_per_side_);
+        // DCHECK(index.y() >=0 && index.y() <voxels_per_side_);
+        // DCHECK(index.z() >=0 && index.z() <voxels_per_side_);
 
         return static_cast<size_t>(index.x() + index.y()*voxels_per_side_ + index.z()*voxels_per_side_*voxels_per_side_);
     }
@@ -42,11 +42,11 @@ public:
     VoxelIndex calVoxelIndex(const Point& coords) const
     {
         VoxelIndex index = calGridIndex<VoxelIndex>(coords - origin_, voxel_size_inv_);
-        Scalar max_value = voxels_per_side_ - 1;
+        IndexElement max_value = voxels_per_side_ - 1;
         return VoxelIndex(
             std::max(std::min(index.x(), max_value), 0), 
             std::max(std::min(index.y(), max_value), 0), 
-            std::max(std::min(index.z(), max_value), 0), 
+            std::max(std::min(index.z(), max_value), 0) 
         );
     }
 
@@ -75,52 +75,23 @@ public:
         return calCoordinate(calVoxelIndex(index));
     }
 
-    inline VoxelType& getVoxel(size_t index) 
-    {
-        return voxels_[index];
-    }
-    
-    inline VoxelTyep& getVoxel(const VoxelIndex& index) 
-    {
-        return voxels_[calVoxelIndex(index)];
-    }
+    inline VoxelType& getVoxel(size_t index) {return voxels_[index];}
 
-    inline VoxelType& getVoxel(const Point& coords)
-    {
-        return voxels_[calLinearIndex(coords)];
-    }
+    inline VoxelType& getVoxel(const VoxelIndex& index) {return voxels_[calVoxelIndex(index)];}
+    inline VoxelType& getVoxel(const Point& coords) {return voxels_[calLinearIndex(coords)];}
+
+    inline const VoxelType& getConstVoxel(size_t index) const {return voxels_[index];}
 
 
-    size_t voxelsPerSide() const 
-    {
-        return voxels_per_side_;
-    }
+    size_t voxelsPerSide() const {return voxels_per_side_;}
+    Scalar voxelSize() const {return voxel_size_;}
+    Scalar voxelSizeInv() const {return voxel_size_inv_;}
+    size_t numVoxels() const {return num_voxels_;}
+    Point origin() const {return origin_;}
 
-    Scalar voxelSize() const 
-    {
-        return voxel_size_;
-    }
-    Scalar voxelSizeInv() const 
-    {
-        return voxel_size_inv_;
-    }
-    size_t numVoxels() const
-    {
-        return num_voxels_;
-    }
-    Point origin() const 
-    {
-        return origin_;
-    }
-
-    void setOrigin(const Point& new_origin)
-    {
-        origin_ = new_origin;
-    }
-    Scalar blockSize() const 
-    {
-        return block_size_;
-    }
+    void setOrigin(const Point& new_origin){origin_ = new_origin;}
+    Scalar blockSize() const {return block_size_;}
+    bool hasData() const {return has_data_;}
 
 
 protected:

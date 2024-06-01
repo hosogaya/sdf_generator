@@ -14,25 +14,25 @@ public:
 
     using Ptr = std::shared_ptr<Layer<VoxelType>>;
     using BlockType = Block<VoxelType>;
-    using BlockHashMap = AnyIndexHashMapType<BlockType::Ptr>::type;
-    using BlockMapPair = std::pair<BlockIndex, BlockType::Ptr>;
+    using BlockHashMap = typename AnyIndexHashMapType<typename BlockType::Ptr>::type;
+    using BlockMapPair = typename std::pair<BlockIndex, typename BlockType::Ptr>;
 
     Layer(Scalar voxel_size, size_t voxels_per_side)
     : voxel_size_(voxel_size), voxels_per_side_(voxels_per_side)
     {
-        voxel_size_inv_ = 1.0/voxel_size;
-        voxels_per_side_inv_ = 1.0/static_cast<Scalar>(voxels_per_size);
-        block_size_ = voxel_size*voxels_per_side_;
+        voxel_size_inv_ = 1.0/voxel_size_;
+        voxels_per_side_inv_ = 1.0/static_cast<Scalar>(voxels_per_side);
+        block_size_ = voxel_size_*voxels_per_side_;
         block_size_inv_ = 1.0/block_size_;
     }
-    ~Layer() {}
+    virtual ~Layer() {}
 
     inline typename BlockType::ConstPtr getBlockPtr(const BlockIndex& index) const
     {
-        typename BlockHashMap::const_iterator itr = block_map_.find();
+        typename BlockHashMap::const_iterator itr = block_map_.find(index);
         if (itr != block_map_.end())
         {
-            return it->second;
+            return itr->second;
         }
         else
         {
@@ -49,6 +49,16 @@ public:
     inline typename BlockType::ConstPtr getBlockPtr(const Point& coords) const
     {
         return getBlockPtr(getBlockIndex(coords));
+    }
+
+    void getAllAllocatedBlocks(BlockIndexList& blocks) const
+    {
+        blocks.clear();
+        blocks.reserve(block_map_.size());
+        for (const std::pair<const BlockIndex, typename BlockType::Ptr>& kv: block_map_)
+        {
+            blocks.emplace_back(kv.first);
+        }
     }
 
     // getter

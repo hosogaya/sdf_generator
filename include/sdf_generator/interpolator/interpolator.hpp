@@ -13,7 +13,9 @@ public:
 
     using Ptr = std::shared_ptr<Interpolator>;
 
-    explicit Interpolator(const typename Layer<VoxelType>::Ptr layer);
+    explicit Interpolator(const typename Layer<VoxelType>::Ptr layer)
+    : layer_(layer) {}
+    virtual ~Interpolator() {}
 
     bool getDistance(const Point& pos, Scalar& distance, bool interpolate = false) const;
     bool getWeight(const Point& pos, Scalar& weight, bool interpolate = false) const;
@@ -54,6 +56,6 @@ private:
     bool getNearestWeight(const Point& pos, Scalar& weight) const;
     bool getNearestVoxel(const Point& pos, VoxelType& voxel) const;
 
-    const Layer<VoxelType>::Ptr layer_;
+    const typename Layer<VoxelType>::Ptr layer_;
 };
 }
