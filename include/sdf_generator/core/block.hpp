@@ -25,7 +25,7 @@ public:
     }
     ~Block() {}
 
-    size_t voxelIndex2LinearIndex(const VoxelIndex& index) const
+    size_t calLinearIndex(const VoxelIndex& index) const
     {
         DCHECK(index.x() >=0 && index.x() <voxels_per_side_);
         DCHECK(index.y() >=0 && index.y() <voxels_per_side_);
@@ -34,14 +34,14 @@ public:
         return static_cast<size_t>(index.x() + index.y()*voxels_per_side_ + index.z()*voxels_per_side_*voxels_per_side_);
     }
 
-    size_t coordinate2LinearIndex(const Point& coords) const
+    size_t calLinearIndex(const Point& coords) const
     {
-        return voxelIndex2LinearIndex(coordinate2VoxelIndex(coords));
+        return calLinearIndex(calVoxelIndex(coords));
     }
 
-    VoxelIndex coordinate2VoxelIndex(const Point& coords) const
+    VoxelIndex calVoxelIndex(const Point& coords) const
     {
-        VoxelIndex index = point2voxelIndex<VoxelIndex>(coords - origin_, voxel_size_inv_);
+        VoxelIndex index = calGridIndex<VoxelIndex>(coords - origin_, voxel_size_inv_);
         Scalar max_value = voxels_per_side_ - 1;
         return VoxelIndex(
             std::max(std::min(index.x(), max_value), 0), 
@@ -52,7 +52,7 @@ public:
 
     // https://cpprefjp.github.io/reference/cstdlib/div.html 
     // std::div_t has quotient(商) and remainder(剰余)
-    inline VoxelIndex linearIndex2VoxelIndex(const size_t index) const
+    inline VoxelIndex calVoxelIndex(const size_t index) const
     {
         int rem = index;
         VoxelIndex result;
@@ -65,14 +65,14 @@ public:
         return result;
     }
 
-    Point voxelIndex2Coordinate(const VoxelIndex& index) const
+    Point calCoordinate(const VoxelIndex& index) const
     {
-        return origin_ + getCenterPointOfVoxel(index, voxel_size_);
+        return origin_ + calCenterPoint(index, voxel_size_);
     }
 
-    inline Point linearIndex2Coordinate(const size_t index) const
+    inline Point calCoordinate(const size_t index) const
     {
-        return voxelIndex2Coordinate(linearIndex2VoxelIndex(index));
+        return calCoordinate(calVoxelIndex(index));
     }
 
     inline VoxelType& getVoxel(size_t index) 
@@ -82,12 +82,12 @@ public:
     
     inline VoxelTyep& getVoxel(const VoxelIndex& index) 
     {
-        return voxels_[linearIndex2VoxelIndex(index)];
+        return voxels_[calVoxelIndex(index)];
     }
 
     inline VoxelType& getVoxel(const Point& coords)
     {
-        return voxels_[coordinate2LinearIndex(coords)];
+        return voxels_[calLinearIndex(coords)];
     }
 
 

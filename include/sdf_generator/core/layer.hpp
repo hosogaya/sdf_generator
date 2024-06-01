@@ -2,6 +2,7 @@
 
 #include <sdf_generator/core/block.hpp>
 #include <sdf_generator/core/hash.hpp>
+#include <sdf_generator/core/util.hpp>
 
 namespace sdf_generator
 {
@@ -26,7 +27,7 @@ public:
     }
     ~Layer() {}
 
-    inline typename BlockType::ConstPtr getBlockPtrByIndex(const BlockIndex& index) const
+    inline typename BlockType::ConstPtr getBlockPtr(const BlockIndex& index) const
     {
         typename BlockHashMap::const_iterator itr = block_map_.find();
         if (itr != block_map_.end())
@@ -37,6 +38,17 @@ public:
         {
             return typename BlockType::ConstPtr();
         }
+    }
+
+    inline BlockIndex getBlockIndex(const Point& coords) const
+    {
+        return calGridIndex<BlockIndex>(coords, block_size_inv_);
+    }
+
+
+    inline typename BlockType::ConstPtr getBlockPtr(const Point& coords) const
+    {
+        return getBlockPtr(getBlockIndex(coords));
     }
 
     // getter

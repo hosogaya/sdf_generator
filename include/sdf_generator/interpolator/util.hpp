@@ -20,20 +20,20 @@ bool isObservedVoxel(const EsdfVoxel& voxel)
     return voxel.observed_;
 }
 
-template <typename VoxelType>
-inline Scalar getVoxelSdf(const VoxelType& voxel);
+// template <typename VoxelType>
+// inline Scalar getVoxelSdf(const VoxelType& voxel);
 
-template <>
-inline Scalar getVoxelSdf(const TsdfVoxel& voxel)
-{
-    return voxel.distance_;
-}
+// template <>
+// inline Scalar getVoxelSdf(const TsdfVoxel& voxel)
+// {
+//     return voxel.distance_;
+// }
 
-template <>
-inline Scalar getVoxelSdf(const EsdfVoxel& voxel)
-{
-    return voxel.distance_;
-}
+// template <>
+// inline Scalar getVoxelSdf(const EsdfVoxel& voxel)
+// {
+//     return voxel.distance_;
+// }
 
 
 }
