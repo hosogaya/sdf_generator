@@ -40,6 +40,19 @@ public:
         }
     }
 
+    inline typename BlockType::Ptr getBlockPtr(const BlockIndex& index) 
+    {
+        typename BlockHashMap::const_iterator itr = block_map_.find(index);
+        if (itr != block_map_.end())
+        {
+            return itr->second;
+        }
+        else
+        {
+            return typename BlockType::ConstPtr();
+        }
+    }
+
     inline BlockIndex getBlockIndex(const Point& coords) const
     {
         return calGridIndex<BlockIndex>(coords, block_size_inv_);
@@ -49,6 +62,11 @@ public:
     inline typename BlockType::ConstPtr getBlockPtr(const Point& coords) const
     {
         return getBlockPtr(getBlockIndex(coords));
+    }
+
+    inline void insertBlock(const std::pair<const BlockIndex, typename Block<VoxelType>::Ptr>& block_pair)
+    {
+        auto insert_status = block_map_.insert(block_pair);
     }
 
     void getAllAllocatedBlocks(BlockIndexList& blocks) const

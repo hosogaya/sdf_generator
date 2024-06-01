@@ -29,5 +29,32 @@ struct AnyIndexHashMapType
                 >;
 };
 
+struct LongIndexHash
+{
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+    static constexpr size_t sl = 17191;
+    static constexpr size_t sl2 = sl*sl;
+
+    std::size_t operator()(const LongIndex& index) const
+    {
+        return static_cast<unsigned int>
+        (
+            index.x() + index.y()*sl + index.z()*sl2
+        );
+    }
+};
+
+template <typename ValueType>
+struct LongIndexHashMapType
+{
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    
+    using type = std::unordered_map<
+                    LongIndex, ValueType, 
+                    LongIndexHash, std::equal_to<LongIndex>, 
+                    Eigen::aligned_allocator<std::pair<const LongIndex, ValueType>>
+                >;
+};
 
 }

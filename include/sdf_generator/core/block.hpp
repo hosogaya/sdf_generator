@@ -5,6 +5,12 @@
 
 namespace sdf_generator
 {
+
+namespace Update
+{
+    enum Status {kMap, kMesh, kEsdf, kCount};
+}
+
 template <typename VoxelType>
 class Block
 {
@@ -15,7 +21,7 @@ public:
     using ConstPtr = std::shared_ptr<const Block<VoxelType>>;
 
     Block(size_t voxels_per_side, Scalar voxel_size, const Point& origin)
-    : voxel_size_(voxel_size), voxels_per_side_(voxels_per_side), origin_(origin)
+    : voxel_size_(voxel_size), voxels_per_side_(voxels_per_side), origin_(origin), updated_(false)
     {
         num_voxels_ = std::pow(voxels_per_side_, 3.0f);
         voxel_size_inv_ = 1.0/voxel_size_;
@@ -82,6 +88,9 @@ public:
 
     inline const VoxelType& getConstVoxel(size_t index) const {return voxels_[index];}
 
+    bool updated(Update::Status status) const {return updated_[status];}
+    void setUpdated(Update::Status status, bool value) {updated_[status] = value;}
+    void setUpdatedAll() {updated_.set();}
 
     size_t voxelsPerSide() const {return voxels_per_side_;}
     Scalar voxelSize() const {return voxel_size_;}
@@ -107,5 +116,7 @@ private:
     Scalar voxel_size_inv_;
     Scalar block_size_;
     Scalar block_size_inv_;
+
+    std::bitset<Update::kCount> updated_;
 };
 }
