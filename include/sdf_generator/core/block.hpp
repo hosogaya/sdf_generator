@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdf_generator/core/voxel.hpp>
+#include <sdf_generator/core/util.hpp>
 
 namespace sdf_generator
 {
@@ -10,8 +11,8 @@ class Block
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    typedef std::shared_ptr<Block<VoxelType>> Ptr;
-    typedef std::shared_ptr<const Block<VoxelType>> ConstPtr;
+    using Ptr = std::shared_ptr<Block<VoxelType>>;
+    using ConstPtr = std::shared_ptr<const Block<VoxelType>>;
 
     Block(size_t voxels_per_side, Scalar voxel_size, const Point& origin)
     : voxel_size_(voxel_size), voxels_per_side_(voxels_per_side), origin_(origin)
@@ -33,7 +34,7 @@ public:
         return static_cast<size_t>(index.x() + index.y()*voxels_per_side_ + index.z()*voxels_per_side_*voxels_per_side_);
     }
 
-    size_t coordinate2LinearIndex(const Point& coords)
+    size_t coordinate2LinearIndex(const Point& coords) const
     {
         return voxelIndex2LinearIndex(coordinate2VoxelIndex(coords));
     }
@@ -49,7 +50,9 @@ public:
         );
     }
 
-    inline VoxelIndex linearIndex2VoxelIndex(const size_t index)
+    // https://cpprefjp.github.io/reference/cstdlib/div.html 
+    // std::div_t has quotient(商) and remainder(剰余)
+    inline VoxelIndex linearIndex2VoxelIndex(const size_t index) const
     {
         int rem = index;
         VoxelIndex result;
@@ -62,12 +65,12 @@ public:
         return result;
     }
 
-    Point voxelIndex2Coordinate(const VoxelIndex& index)
+    Point voxelIndex2Coordinate(const VoxelIndex& index) const
     {
         return origin_ + getCenterPointOfVoxel(index, voxel_size_);
     }
 
-    inline Point linearIndex2Coordinate(const size_t index)
+    inline Point linearIndex2Coordinate(const size_t index) const
     {
         return voxelIndex2Coordinate(linearIndex2VoxelIndex(index));
     }

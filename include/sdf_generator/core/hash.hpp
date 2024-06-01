@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sdf_generator/core/common.hpp>
+#include <sdf_generator/core/type.hpp>
 
 namespace sdf_generator
 {
@@ -22,11 +22,11 @@ template <typename ValueType>
 struct AnyIndexHashMapType
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    typedef std::unordered_map<
+    using type = std::unordered_map<
                     AnyIndex, ValueType, 
                     AnyIndexHash, std::equal_to<AnyIndex>, 
                     Eigen::aligned_allocator<std::pair<const AnyIndex, ValueType>>
-                > type;
+                >;
 };
 
 

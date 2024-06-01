@@ -11,15 +11,33 @@ class Layer
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    typedef std::shared_ptr<Layer> Ptr;
-    typedef Block<VoxelType> BlockType;
-    typedef typename AnyIndexHashMapType<typename BlockType::Ptr>::type BlockHashMap;
-    typedef typename std::pair<BlockIndex, typename BlockType::Ptr> BlockMapPair;
+    using Ptr = std::shared_ptr<Layer<VoxelType>>;
+    using BlockType = Block<VoxelType>;
+    using BlockHashMap = AnyIndexHashMapType<BlockType::Ptr>::type;
+    using BlockMapPair = std::pair<BlockIndex, BlockType::Ptr>;
 
-    Layer(Scalar voxel_size, size_t voxels_per_side);
-    ~Layer();
+    Layer(Scalar voxel_size, size_t voxels_per_side)
+    : voxel_size_(voxel_size), voxels_per_side_(voxels_per_side)
+    {
+        voxel_size_inv_ = 1.0/voxel_size;
+        voxels_per_side_inv_ = 1.0/static_cast<Scalar>(voxels_per_size);
+        block_size_ = voxel_size*voxels_per_side_;
+        block_size_inv_ = 1.0/block_size_;
+    }
+    ~Layer() {}
 
-
+    inline typename BlockType::ConstPtr getBlockPtrByIndex(const BlockIndex& index) const
+    {
+        typename BlockHashMap::const_iterator itr = block_map_.find();
+        if (itr != block_map_.end())
+        {
+            return it->second;
+        }
+        else
+        {
+            return typename BlockType::ConstPtr();
+        }
+    }
 
     // getter
     Scalar blockSize() const {return block_size_;}
