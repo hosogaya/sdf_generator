@@ -1,0 +1,2 @@
+Invoking command in '/home/hosogaya/sdf_generator/build/sdf_generator': /usr/bin/cmake /home/hosogaya/sdf_generator -DCMAKE_INSTALL_PREFIX=/home/hosogaya/sdf_generator/install/sdf_generator
+Invoked command in '/home/hosogaya/sdf_generator/build/sdf_generator' returned '1': /usr/bin/cmake /home/hosogaya/sdf_generator -DCMAKE_INSTALL_PREFIX=/home/hosogaya/sdf_generator/install/sdf_generator
