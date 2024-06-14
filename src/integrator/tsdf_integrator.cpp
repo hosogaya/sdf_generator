@@ -11,7 +11,7 @@ TsdfIntegratorBase::TsdfIntegratorBase(const Config& config, Layer<TsdfVoxel>::P
     {
         config_.integrator_threads_ = 1;
     }
-    if (config_.allow_clear_ && !config_.voxel_carving_enabled)
+    if (config_.allow_clear_ && !config_.voxel_carving_enabled_)
     {
         config_.allow_clear_ = false;
     }
@@ -97,18 +97,18 @@ void TsdfIntegratorBase::updateTsdfVoxel(
     std::lock_guard<std::mutex> lock(mutexes_.get(global_voxel_index));
 
     bool in_the_reliable_band = true;
-    if (distance > config_.default_truncation_distance_*config_.reliable_band_ratio)
+    if (distance > config_.default_truncation_distance_*config_.reliable_band_ratio_)
         in_the_reliable_band = false;
 
     Vector3 gradient_c;
-    if (config_.normal_available && in_the_reliable_band)
+    if (config_.normal_available_ && in_the_reliable_band)
     {
         Scalar normal_ratio(1.0);
         if (tsdf_voxel.gradient_.norm() > kWeightEpsilon)
         {
             gradient_c = tf_global2current.rotation().conjugate()*tsdf_voxel.gradient_;
             // Condition 1. curve surface
-            if (config_.curve_assumption && normal_c.norm() > kWeightEpsilon)
+            if (config_.curve_assumption_ && normal_c.norm() > kWeightEpsilon)
             {
                 Scalar cos_theta = std::abs(gradient_c.dot(point_c)) / point_c.norm();
                 Scalar cos_alpha = std::abs(gradient_c.dot(normal_c)) / normal_c.norm();
@@ -130,7 +130,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
             normal_ratio = std::abs(normal_c.dot(point_c)) / point_c.norm();
         }
 
-        if (normal_ratio < config_.reliable_normal_ratio_thre) return;
+        if (normal_ratio < config_.reliable_normal_ratio_thre_) return;
         
         // get the non-projective sdf, if it's still larger than truncation
         // distance, the gradient would not be updated
@@ -151,7 +151,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
         updateTsdfVoxelValue(tsdf_voxel, distance, weight);
         tsdf_voxel.distance_ = std::min(config_.default_truncation_distance_, tsdf_voxel.distance_);
     }
-    else if (config_.normal_available)
+    else if (config_.normal_available_)
     {
         if (normal_g.norm() > kWeightEpsilon)  
             updateTsdfVoxelGradient(tsdf_voxel, normal_g, weight);
@@ -211,7 +211,7 @@ Scalar TsdfIntegratorBase::calVoxelWeight(
     else if (!config_.use_const_weight_) weight /= std::pow(point_c.norm(), config_.weight_reduction_exp);
 
     // Part 2. weight drop-off
-    if (config_.use_weight_dropoff)
+    if (config_.use_weight_dropoff_)
     {
         const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon > 0.0f
                                       ? config_.weight_dropoff_epsilon

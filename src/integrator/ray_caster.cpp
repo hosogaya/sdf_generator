@@ -4,7 +4,7 @@ namespace sdf_generator
 {
 RayCaster::RayCaster(
     const Point& origin, const Point& point_g,
-        const bool is_clearing_ray, const bool voxel_carving_enabled,
+        const bool is_clearing_ray, const bool voxel_carving_enabled_,
         const Scalar max_ray_length, const Scalar voxel_size_inv,
         const Scalar truncation_distance, const bool cast_from_origin = true)
 {
@@ -22,12 +22,12 @@ RayCaster::RayCaster(
         );
 
         ray_end = origin + unit_ray*ray_length;
-        ray_start = voxel_carving_enabled ? origin : ray_end;
+        ray_start = voxel_carving_enabled_ ? origin : ray_end;
     }
     else 
     {
         ray_end = point_g + unit_ray*truncation_distance;
-        ray_start = voxel_carving_enabled ? origin : (point_g - unit_ray*truncation_distance);
+        ray_start = voxel_carving_enabled_ ? origin : (point_g - unit_ray*truncation_distance);
     }
 
     const Point start_scaled = ray_start*voxel_size_inv;

@@ -11,5 +11,4 @@ namespace sdf_generator
 {
 using PointArray = AlignedVector<Point>;
 using Vector3Array = AlignedVector<Vector3>;
-using PointCloud = pcl::PointCloud<pcl::PointXYZRGBL>;
 } // namespace sdf_generator

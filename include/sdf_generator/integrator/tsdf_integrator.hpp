@@ -27,25 +27,25 @@ public:
 
         Scalar default_truncation_distance_ = 0.1;
         Scalar max_weight_ = 1.0e4;
-        bool voxel_carving_enabled = true;
+        bool voxel_carving_enabled_ = true;
         Scalar min_ray_length_ = 0.1;
         Scalar max_ray_length_ = 5.0;
         bool use_const_weight_ = false;
-        float weight_reduction_exp = 1.0f;
+        float weight_reduction_exp_ = 1.0f;
         bool allow_clear_ = true;
 
-        bool use_weight_dropoff = true;
+        bool use_weight_dropoff_ = true;
         // if negative, then the value would be the ratio of voxel size
-        float weight_dropoff_epsilon = -1.0f;
+        float weight_dropoff_epsilon_ = -1.0f;
         
         bool use_sparsity_compensation_factor_ = false;
         Scalar sparsity_compensation_factor_ = 1.0f;
 
         /// non-projective correction specific
-        bool normal_available = false;
-        Scalar reliable_band_ratio = 2.0f;
-        bool curve_assumption = false;
-        Scalar reliable_normal_ratio_thre = 0.1f;
+        bool normal_available_ = false;
+        Scalar reliable_band_ratio_ = 2.0f;
+        bool curve_assumption_ = false;
+        Scalar reliable_normal_ratio_thre_ = 0.1f;
 
         size_t integrator_threads_ = std::thread::hardware_concurrency();
 

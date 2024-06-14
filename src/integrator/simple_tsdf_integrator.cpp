@@ -49,7 +49,7 @@ void SimpleTsdfIntegrator::integrateFunction(
         // ray caster
         RayCaster ray_caster(
             origin, point_g, is_clearing, 
-            config_.voxel_carving_enabled,
+            config_.voxel_carving_enabled_,
             config_.max_ray_length_, voxel_size_inv_,
             config_.default_truncation_distance_
         );
