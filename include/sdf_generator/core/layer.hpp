@@ -36,7 +36,7 @@ public:
         }
         else
         {
-            return typename BlockType::ConstPtr();
+            return typename BlockType::Ptr();
         }
     }
 
@@ -49,7 +49,7 @@ public:
         }
         else
         {
-            return typename BlockType::ConstPtr();
+            return typename BlockType::Ptr();
         }
     }
 
@@ -66,7 +66,7 @@ public:
 
     inline void insertBlock(const std::pair<const BlockIndex, typename Block<VoxelType>::Ptr>& block_pair)
     {
-        auto insert_status = block_map_.insert(block_pair);
+        block_map_.insert(block_pair);
     }
 
     void getAllAllocatedBlocks(BlockIndexList& blocks) const

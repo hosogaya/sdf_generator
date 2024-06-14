@@ -2,6 +2,7 @@
 
 #include <sdf_generator/core/voxel.hpp>
 #include <sdf_generator/core/util.hpp>
+#include <bitset>
 
 namespace sdf_generator
 {
@@ -83,7 +84,7 @@ public:
 
     inline VoxelType& getVoxel(size_t index) {return voxels_[index];}
 
-    inline VoxelType& getVoxel(const VoxelIndex& index) {return voxels_[calVoxelIndex(index)];}
+    inline VoxelType& getVoxel(const VoxelIndex& index) {return voxels_[calLinearIndex(index)];}
     inline VoxelType& getVoxel(const Point& coords) {return voxels_[calLinearIndex(coords)];}
 
     inline const VoxelType& getConstVoxel(size_t index) const {return voxels_[index];}

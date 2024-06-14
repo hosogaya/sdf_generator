@@ -65,4 +65,12 @@ inline VoxelIndex calLocalVoxelIndex(const GlobalIndex& voxel_index, const int v
     );
 }
 
+inline int signum(const Scalar x)
+{
+    if (x == 0.0f) return 0;
+    else if (x < 0.0f) return -1;
+    
+    return 1;
+}
+
 }

@@ -16,7 +16,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     StoredElement& get(const size_t& hash) {return pseudo_map_[hash & bit_mask_];}
-    StoredElement& get(const IndexTyep& index, size_t& hash)
+    StoredElement& get(const IndexType& index, size_t& hash)
     {
         hash = hasher_(index);
         return get(hash);

@@ -68,4 +68,5 @@ bool TsdfMap::getWeightAtPosition(const Vector3& position, Scalar& wegiht, const
 {
     return interpolator_.getWeight(position, wegiht, interpolate);
 }
+
 }

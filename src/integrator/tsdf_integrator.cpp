@@ -84,4 +84,164 @@ void TsdfIntegratorBase::updateLayerWithStoredBlocks()
 }
 
 
+void TsdfIntegratorBase::updateTsdfVoxel(
+    const TransformMatrix<Scalar>& tf_global2current, const Point& origin, 
+    const Point& point_c, const Point& point_g,
+    const Vector3& normal_c, const Vector3& normal_g,
+    const GlobalIndex& global_voxel_index, const Color& color,
+    const Scalar init_weight, TsdfVoxel& tsdf_voxel)
+{
+    const Point voxel_center = calCenterPoint(global_voxel_index, voxel_size_);
+    Scalar distance = calDistance(origin, point_g, voxel_center);
+    
+    std::lock_guard<std::mutex> lock(mutexes_.get(global_voxel_index));
+
+    bool in_the_reliable_band = true;
+    if (distance > config_.default_truncation_distance_*config_.reliable_band_ratio)
+        in_the_reliable_band = false;
+
+    Vector3 gradient_c;
+    if (config_.normal_available && in_the_reliable_band)
+    {
+        Scalar normal_ratio(1.0);
+        if (tsdf_voxel.gradient_.norm() > kWeightEpsilon)
+        {
+            gradient_c = tf_global2current.rotation().conjugate()*tsdf_voxel.gradient_;
+            // Condition 1. curve surface
+            if (config_.curve_assumption && normal_c.norm() > kWeightEpsilon)
+            {
+                Scalar cos_theta = std::abs(gradient_c.dot(point_c)) / point_c.norm();
+                Scalar cos_alpha = std::abs(gradient_c.dot(normal_c)) / normal_c.norm();
+                Scalar sin_theta = std::sqrt(1.0f - cos_theta*cos_theta);
+                Scalar sin_alpha = std::sqrt(1.0f - cos_alpha*cos_alpha);
+                normal_ratio = std::abs(sin_theta*(cos_alpha-1)/sin_alpha + cos_theta);
+
+                if (std::isnan(normal_ratio)) normal_ratio = cos_theta;
+            }
+            // Condition 2. flat surface
+            else
+            {
+                normal_ratio = std::abs(gradient_c.dot(point_c)) / point_c.norm();
+            }
+        }
+        else if (normal_c.norm() > kWeightEpsilon)
+        {
+            // gradient not ready yet
+            normal_ratio = std::abs(normal_c.dot(point_c)) / point_c.norm();
+        }
+
+        if (normal_ratio < config_.reliable_normal_ratio_thre) return;
+        
+        // get the non-projective sdf, if it's still larger than truncation
+        // distance, the gradient would not be updated
+        distance *= normal_ratio;
+    }
+
+    if (distance < -config_.default_truncation_distance_) return;
+
+    bool with_init_weight(false);
+    if (init_weight > 0.0f) with_init_weight = true;
+
+    Scalar weight =calVoxelWeight(point_c, distance, with_init_weight, init_weight);
+
+    if (weight < kWeightEpsilon) return; 
+
+    if (distance > config_.default_truncation_distance_)
+    {
+        updateTsdfVoxelValue(tsdf_voxel, distance, weight);
+        tsdf_voxel.distance_ = std::min(config_.default_truncation_distance_, tsdf_voxel.distance_);
+    }
+    else if (config_.normal_available)
+    {
+        if (normal_g.norm() > kWeightEpsilon)  
+            updateTsdfVoxelGradient(tsdf_voxel, normal_g, weight);
+
+        updateTsdfVoxelValue(tsdf_voxel, distance, weight, &color);
+    }
+}
+
+void TsdfIntegratorBase::updateTsdfVoxelValue(
+    TsdfVoxel& voxel, const Scalar distance, const Scalar weight,
+    const Color* color) const
+{
+    Scalar new_weight = voxel.weight_ + weight;
+    if (new_weight < kWeightEpsilon) return;
+
+    voxel.distance_ = (voxel.distance_*voxel.weight_ + distance*weight) / new_weight;
+
+    voxel.weight_ = std::min(new_weight, config_.max_weight_);
+
+    if (color != nullptr)
+        voxel.color_ = Color::blendTwoColors(voxel.color_, voxel.weight_, *color, weight);
+}
+
+void TsdfIntegratorBase::updateTsdfVoxelGradient(
+    TsdfVoxel& voxel, const Vector3 normal, const Scalar weight) const
+{
+    Scalar new_weight = voxel.weight_ + weight;
+    if (new_weight < kWeightEpsilon) return;
+
+    if (voxel.gradient_.norm() > kWeightEpsilon)
+        voxel.gradient_ = (voxel.gradient_*voxel.weight_ + normal*weight).normalized();
+    else
+        voxel.gradient_ = normal.normalized();
+}
+
+Scalar TsdfIntegratorBase::calDistance(
+    const Point& origin, const Point& point_g,
+    const Point& voxel_center) const
+{
+    const Vector3 origin2voxel = voxel_center - origin;
+    const Vector3 origin2point = point_g - origin;
+
+    const Scalar dist_point = origin2point.norm();
+    const Scalar dist_g_voxel = origin2voxel.dot(origin2point)/dist_point;
+
+    return dist_point - dist_g_voxel;
+}
+
+
+Scalar TsdfIntegratorBase::calVoxelWeight(
+    const Point& point_c, const Scalar distance, const bool with_init_weight,
+    const Scalar init_weight) const
+{
+    Scalar weight(1.0);
+    if (with_init_weight) weight = init_weight;
+    // Part 1. Weight reduction with distance
+    else if (!config_.use_const_weight_) weight /= std::pow(point_c.norm(), config_.weight_reduction_exp);
+
+    // Part 2. weight drop-off
+    if (config_.use_weight_dropoff)
+    {
+        const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon > 0.0f
+                                      ? config_.weight_dropoff_epsilon
+                                      : config_.weight_dropoff_epsilon*-voxel_size_;
+        if (distance < -dropoff_epsilon)
+        {
+            weight *= (config_.default_truncation_distance_ + distance)
+                    / (config_.default_truncation_distance_ - dropoff_epsilon);
+            weight = std::max(weight, 0.0f);
+        }
+    }
+
+    // Part 3. deal with sparse point cloud
+    if (config_.use_sparsity_compensation_factor_)
+    {
+        if (std::abs(distance) < config_.default_truncation_distance_)
+            weight *= config_.sparsity_compensation_factor_;
+    }
+
+    return weight;
+}
+
+Scalar TsdfIntegratorBase::getVoxelWeight(const Point& point_c) const
+{
+    if (config_.use_const_weight_) return 1.0f;
+
+    const Scalar dist = point_c.norm();
+    if (dist > kCoordinateEpsilon) return 1.0f/std::pow(dist, config_.weight_reduction_exp);
+
+    return 0.0f;
+}
+
 }

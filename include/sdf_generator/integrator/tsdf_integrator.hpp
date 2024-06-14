@@ -10,8 +10,10 @@
 #include <sdf_generator/point_cloud/type.hpp>
 #include <sdf_generator/integrator/approx_has_array.hpp>
 
+
 namespace sdf_generator
 {
+// non projective
 class TsdfIntegratorBase
 {
 public:
@@ -29,9 +31,21 @@ public:
         Scalar min_ray_length_ = 0.1;
         Scalar max_ray_length_ = 5.0;
         bool use_const_weight_ = false;
+        float weight_reduction_exp = 1.0f;
         bool allow_clear_ = true;
+
+        bool use_weight_dropoff = true;
+        // if negative, then the value would be the ratio of voxel size
+        float weight_dropoff_epsilon = -1.0f;
+        
         bool use_sparsity_compensation_factor_ = false;
         Scalar sparsity_compensation_factor_ = 1.0f;
+
+        /// non-projective correction specific
+        bool normal_available = false;
+        Scalar reliable_band_ratio = 2.0f;
+        bool curve_assumption = false;
+        Scalar reliable_normal_ratio_thre = 0.1f;
 
         size_t integrator_threads_ = std::thread::hardware_concurrency();
 
@@ -49,8 +63,8 @@ public:
     ~TsdfIntegratorBase();
 
     virtual void integratePointArray(
-        const TransformMatrix<Scalar>& tf_global2camer, const PointArray& points_C, 
-        const ColorArray& colors, const bool freespace_points = false) = 0;
+        const TransformMatrix<Scalar>& tf_global2current, const PointArray& points_C, 
+        const Vector3Array& normals_c, const ColorArray& colors, const bool freespace_points = false) = 0;
 
     const Config& getConfig() const {return config_;}
 
@@ -98,15 +112,30 @@ protected:
 
     // updates tsdf_voxel, thread safe
     void updateTsdfVoxel(
-        const Point& origin, const Point& point_g,
+        const TransformMatrix<Scalar>& tf_global2current, const Point& origin, 
+        const Point& point_c, const Point& point_g,
+        const Vector3& normal_c, const Vector3& normal_g,
         const GlobalIndex& global_voxel_index, const Color& color,
-        const Scalar weight, TsdfVoxel& tsdf_voxel);
+        const Scalar init_weight, TsdfVoxel& tsdf_voxel);
+
+    void updateTsdfVoxelValue(
+        TsdfVoxel& voxel, const Scalar distance, const Scalar weight,
+        const Color* color = nullptr) const; 
+
+    /// Update tsdf_voxel's signed distance gradient
+    void updateTsdfVoxelGradient(
+        TsdfVoxel& voxel, const Vector3 normal, const Scalar weight) const;
 
     Scalar calDistance(
         const Point& origin, const Point& point_g,
         const Point& voxel_center) const;
 
-    Scalar getVoxelWeight(const Point& ponit_c) const;
+    /// Calculates measurment weight (confidence)
+    Scalar calVoxelWeight(
+        const Point& point_c, const Scalar distance, const bool with_init_weight,
+        const Scalar init_weight) const;  
+
+    Scalar getVoxelWeight(const Point& point_c) const;
 
 protected:
     Config config_;
