@@ -13,9 +13,64 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
             const TsdfIntegratorBase::Config& integrator_config)
 : rclcpp::Node("tsdf_server", options)
 {
+    /**
+     * Publisher and Subscriber
+    */
     sub_point_cloud_ = create_subscription<sensor_msgs::msg::PointCloud2>(
         "input/point_cloud", 1, std::bind(&TsdfServer::pointCloudCallback, this, std::placeholders::_1)
     );
+
+    /**
+     * Parameters
+    */
+    world_frame_ = declare_parameter("world_frame", "map");
+    sensor_frame_ = declare_parameter("sensor_frame", "sensor_frame");
+    std::string integration_method = declare_parameter("integration_method", "simple");
+    std::string color_map_method = declare_parameter("color_map_method", "rainbow");
+    std::string sensor_type = declare_parameter("sensor_type", "lidar");
+
+    /**
+     * Construction
+    */
+    tsdf_map_ = std::make_shared<TsdfMap>(map_config);
+    // tsdf integrator
+    if (integration_method == "simple") 
+        tsdf_integrator_.reset(new SimpleTsdfIntegrator(integrator_config, tsdf_map_->getTsdfLayerPtr()));
+    else 
+    {
+        RCLCPP_ERROR(get_logger(), "Please set specific integration method");
+        rclcpp::shutdown();
+    }
+    
+    // color map
+    if (color_map_method == "rainbow")
+        color_map_.reset(new RainbowColorMap());
+    else if (color_map_method == "grayscale")
+        color_map_.reset(new GrayScaleColorMap());
+    else
+    {
+        RCLCPP_ERROR(get_logger(), "Please set specific color map method");
+        rclcpp::shutdown();
+    }
+
+    // point cloud processor
+    if (sensor_type == "lidar")
+    {
+        point_cloud_processor_.reset(new LidarProcessor(
+            getPointCloudProcessorCommonConfig(get_node_logging_interface(), get_node_parameters_interface()),
+            getLidarConfig(get_node_logging_interface(), get_node_parameters_interface())
+        ));
+    }
+    else
+    {
+        RCLCPP_ERROR(get_logger(), "Please set specific sensor type");
+        rclcpp::shutdown();
+    }
+
+    // tf
+    tf_buffer_.reset(new tf2_ros::Buffer(get_clock()));
+    tf_listener_.reset(new tf2_ros::TransformListener(*tf_buffer_));
+
 }
 
 TsdfServer::~TsdfServer() {}
@@ -81,7 +136,19 @@ bool TsdfServer::getTransform(const std::string& target, const std::string& sour
     {
         geometry_msgs::msg::TransformStamped tf_msg = tf_buffer_->lookupTransform(target, source, sub_time);
 
-        // ToDo convert to Transform Matrix
+        Eigen::Vector3<Scalar> translation(
+            tf_msg.transform.translation.x,
+            tf_msg.transform.translation.y,
+            tf_msg.transform.translation.z
+        );
+        Eigen::Quaternion<Scalar> rotation(
+            tf_msg.transform.rotation.w,
+            tf_msg.transform.rotation.x,
+            tf_msg.transform.rotation.y,
+            tf_msg.transform.rotation.z
+        );
+
+        tf_mat = TransformMatrix<Scalar>(translation, rotation);
     }
     catch (tf2::TransformException& ex)
     {
@@ -90,3 +157,6 @@ bool TsdfServer::getTransform(const std::string& target, const std::string& sour
 }
 
 }
+
+#include <rclcpp_components/register_node_macro.hpp>
+RCLCPP_COMPONENTS_REGISTER_NODE(sdf_generator::TsdfServer);

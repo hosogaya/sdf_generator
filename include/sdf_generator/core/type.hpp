@@ -45,7 +45,7 @@ inline std::shared_ptr<Type> aligned_shared(Arguments&&... arguments)
 using IndexVector = AlignedVector<AnyIndex>;
 using BlockIndexList = IndexVector;
 
-
+constexpr Scalar kEpsilon = 1e-8;
 constexpr Scalar kCoordinateEpsilon = 1e-6; // used for coordinate
 constexpr Scalar kWeightEpsilon = 1e-8; // used for weights
 

@@ -54,7 +54,7 @@ inline void convertPointCloud(
         if (!isValidPoint(point_cloud[i])) continue;
         
         points.emplace_back(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z);
-        colors.emplace_back(convertColor<PclPointType>(Point[i], color_map));
+        colors.emplace_back(convertColor<PclPointType>(point_cloud[i], color_map));
     }
 }
 

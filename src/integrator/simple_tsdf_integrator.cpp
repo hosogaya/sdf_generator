@@ -1,5 +1,3 @@
-#pragma once
-
 #include <sdf_generator/integrator/simple_tsdf_integrator.hpp>
 
 namespace sdf_generator

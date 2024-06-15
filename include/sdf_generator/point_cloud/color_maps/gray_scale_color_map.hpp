@@ -6,7 +6,7 @@
 namespace sdf_generator
 {
 
-class GrayScaleColorMap : ColorMap
+class GrayScaleColorMap : public ColorMap
 {
 public:
     virtual Color colorLookup(Scalar value) const override

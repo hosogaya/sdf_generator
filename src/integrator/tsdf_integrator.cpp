@@ -208,14 +208,14 @@ Scalar TsdfIntegratorBase::calVoxelWeight(
     Scalar weight(1.0);
     if (with_init_weight) weight = init_weight;
     // Part 1. Weight reduction with distance
-    else if (!config_.use_const_weight_) weight /= std::pow(point_c.norm(), config_.weight_reduction_exp);
+    else if (!config_.use_const_weight_) weight /= std::pow(point_c.norm(), config_.weight_reduction_exp_);
 
     // Part 2. weight drop-off
     if (config_.use_weight_dropoff_)
     {
-        const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon > 0.0f
-                                      ? config_.weight_dropoff_epsilon
-                                      : config_.weight_dropoff_epsilon*-voxel_size_;
+        const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon_ > 0.0f
+                                      ? config_.weight_dropoff_epsilon_
+                                      : config_.weight_dropoff_epsilon_*-voxel_size_;
         if (distance < -dropoff_epsilon)
         {
             weight *= (config_.default_truncation_distance_ + distance)
@@ -239,7 +239,7 @@ Scalar TsdfIntegratorBase::getVoxelWeight(const Point& point_c) const
     if (config_.use_const_weight_) return 1.0f;
 
     const Scalar dist = point_c.norm();
-    if (dist > kCoordinateEpsilon) return 1.0f/std::pow(dist, config_.weight_reduction_exp);
+    if (dist > kCoordinateEpsilon) return 1.0f/std::pow(dist, config_.weight_reduction_exp_);
 
     return 0.0f;
 }

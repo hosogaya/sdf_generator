@@ -31,7 +31,9 @@
                 "/opt/ros/humble/include/tf2",
                 "/opt/ros/humble/include/tf2_msgs",
                 "/opt/ros/humble/include/message_filters",
-                "/opt/ros/humble/include/pcl_msgs"
+                "/opt/ros/humble/include/pcl_msgs",
+                "/opt/ros/humble/include/rclcpp_components",
+                "/opt/ros/humble/include/class_loader"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

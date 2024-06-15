@@ -6,7 +6,7 @@ RayCaster::RayCaster(
     const Point& origin, const Point& point_g,
         const bool is_clearing_ray, const bool voxel_carving_enabled_,
         const Scalar max_ray_length, const Scalar voxel_size_inv,
-        const Scalar truncation_distance, const bool cast_from_origin = true)
+        const Scalar truncation_distance, const bool cast_from_origin)
 {
     const Vector3 unit_ray = (point_g - origin).normalized();
 

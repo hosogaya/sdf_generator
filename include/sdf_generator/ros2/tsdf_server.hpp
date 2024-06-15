@@ -9,9 +9,17 @@
 
 #include <sdf_generator/ros2/ros_params.hpp>
 #include <sdf_generator/core/tsdf_map.hpp>
-#include <sdf_generator/integrator/simple_tsdf_integrator.hpp>
+
+// point cloud process
 #include <sdf_generator/point_cloud/point_cloud_processor.hpp>
 #include <sdf_generator/point_cloud/conversions.hpp>
+
+// integrators
+#include <sdf_generator/integrator/simple_tsdf_integrator.hpp>
+
+// color maps
+#include <sdf_generator/point_cloud/color_maps/gray_scale_color_map.hpp>
+#include <sdf_generator/point_cloud/color_maps/rainbow_color_map.hpp>
 
 namespace sdf_generator
 {

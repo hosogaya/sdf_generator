@@ -3,25 +3,22 @@
 namespace sdf_generator
 {
 PointCloudProcessor::PointCloudProcessor(
-    const int width, const int height, 
-    const Scalar min_d, const Scalar min_z, 
-    const Scalar depth_smooth_thres_ratio, 
-    const bool is_loop)
-: width_(width), height_(height), 
-min_d_(min_d), min_z_(min_z),
-depth_smooth_thres_ratio_(depth_smooth_thres_ratio), 
-is_loop_(is_loop)
+    const CommonConfig& common_config)
+: common_config_(common_config)
 {}
 
 PointCloudProcessor::~PointCloudProcessor() {}
 
-void PointCloudProcessor::process(PointArray& point, ColorArray& color, Vector3Array& normal)
+void PointCloudProcessor::process(PointArray& point, ColorArray& color, 
+                                Vector3Array& normal)
 {
-    cv::Mat vertex_image = cv::Mat::zeros(height_, width_, CV_32FC3);
+    cv::Mat vertex_image = cv::Mat::zeros(common_config_.height_, common_config_.width_, CV_32FC3);
     cv::Mat depth_image(vertex_image.size(), CV_32FC1, -1.0);
     cv::Mat color_image = cv::Mat::zeros(vertex_image.size(), CV_8UC3);
 
-    projectPointCloudToImage(point, color, vertex_image, depth_image, color_image, min_d_, min_z_);
+    projectPointCloudToImage(point, color, vertex_image, depth_image, 
+                            color_image, common_config_.min_d_, common_config_.min_z_);
+                            
     cv::Mat normal_image = calNormalImage(vertex_image, depth_image);
 
     point = extractPointArray(vertex_image, depth_image);
@@ -66,12 +63,13 @@ void PointCloudProcessor::projectPointCloudToImage
     return ;
 }
 
-cv::Mat PointCloudProcessor::calNormalImage(const cv::Mat& vertex_image, const cv::Mat& depth_image)
+cv::Mat PointCloudProcessor::calNormalImage(const cv::Mat& vertex_image, 
+                                            const cv::Mat& depth_image)
 {
     cv::Mat normal_image(depth_image.size(), CV_32FC3, 0.0);
-    for (int u=0; u < width_; ++u)
+    for (int u=0; u < common_config_.width_; ++u)
     {
-        for (int v=0; v < height_; ++v)
+        for (int v=0; v < common_config_.height_; ++v)
         {
             Point p(
                 vertex_image.at<VertexImageType>(v, u)[0],
@@ -86,28 +84,30 @@ cv::Mat PointCloudProcessor::calNormalImage(const cv::Mat& vertex_image, const c
             
             // get neighbor
             int nx_u;
-            if (u == width_ - 1)
+            if (u == common_config_.width_ - 1)
             {
-                if (is_loop_) nx_u = 0;
+                if (common_config_.is_loop_) nx_u = 0;
                 else nx_u = u - 1;
             }
             else nx_u = u + 1;
 
             Scalar depth_nx = depth_image.at<DepthImageType>(v, nx_u);
             if (depth_nx < 0.0) continue;
-            if (std::abs(depth_nx - depth) > depth_smooth_thres_ratio_*depth) continue;
+            if (std::abs(depth_nx - depth) 
+                > common_config_.depth_smooth_thres_ratio_*depth) continue;
 
             int ny_v;
-            if (v == width_ - 1)
+            if (v == common_config_.width_ - 1)
             {
-                if (is_loop_) ny_v = 0;
+                if (common_config_.is_loop_) ny_v = 0;
                 else ny_v = v - 1;
             }
             else ny_v = v + 1;
 
             Scalar depth_ny = depth_image.at<DepthImageType>(ny_v, u);
             if (depth_ny < 0.0) continue;
-            if (std::abs(depth_ny - depth) > depth_smooth_thres_ratio_*depth) continue;
+            if (std::abs(depth_ny - depth) 
+                > common_config_.depth_smooth_thres_ratio_*depth) continue;
 
             Point nx(
                 vertex_image.at<VertexImageType>(v, nx_u)[0],
@@ -137,7 +137,8 @@ cv::Mat PointCloudProcessor::calNormalImage(const cv::Mat& vertex_image, const c
 }
 
 
-PointArray PointCloudProcessor::extractPointArray(const cv::Mat& vertex_image, const cv::Mat& depth_image) const
+PointArray PointCloudProcessor::extractPointArray(const cv::Mat& vertex_image, 
+                                                const cv::Mat& depth_image) const
 {
     PointArray points;
     for (int v=0; v<vertex_image.rows; ++v)
@@ -152,7 +153,8 @@ PointArray PointCloudProcessor::extractPointArray(const cv::Mat& vertex_image, c
     return points;
 }
 
-ColorArray PointCloudProcessor::extractColorArray(const cv::Mat& color_image,  const cv::Mat& depth_image) const
+ColorArray PointCloudProcessor::extractColorArray(const cv::Mat& color_image, 
+                                                const cv::Mat& depth_image) const
 {
     ColorArray colors;
     for (int v=0; v<color_image.rows; ++v)
@@ -168,7 +170,8 @@ ColorArray PointCloudProcessor::extractColorArray(const cv::Mat& color_image,  c
 }
 
 
-Vector3Array PointCloudProcessor::extractNormalArray(const cv::Mat& normal_image, const cv::Mat& depth_image) const
+Vector3Array PointCloudProcessor::extractNormalArray(const cv::Mat& normal_image, 
+                                                    const cv::Mat& depth_image) const
 {
     Vector3Array normals;
     for (int v=0; v<normal_image.rows; ++v)

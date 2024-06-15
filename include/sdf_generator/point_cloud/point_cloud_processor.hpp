@@ -12,11 +12,22 @@ public:
     using ColorImageType = cv::Vec3b;
     using NormalImageType = cv::Vec3f;
 
-    PointCloudProcessor(const int width, const int height, const Scalar min_d, const Scalar min_z, const Scalar depth_smooth_thres_ratio, const bool is_loop);
+    struct CommonConfig
+    {
+        int width_;
+        int height_;
+        Scalar min_d_;
+        Scalar min_z_;
+        Scalar depth_smooth_thres_ratio_;
+        bool is_loop_; // for yaw angle. The others are assumed not to be loop.
+    };
+
+    PointCloudProcessor(const CommonConfig& common_config);
     ~PointCloudProcessor();
 
     void process(PointArray& point, ColorArray& color, Vector3Array& normal);
 
+protected:
     void projectPointCloudToImage(
         const PointArray& point, const ColorArray& color, 
         cv::Mat& vertex_map, cv::Mat& depth_image, 
@@ -30,14 +41,7 @@ public:
     virtual ColorArray extractColorArray(const cv::Mat& color_image, const cv::Mat& depth_image) const;
     virtual Vector3Array extractNormalArray(const cv::Mat& normal_image, const cv::Mat& depth_image) const;
 
-protected:
-    const int width_;
-    const int height_;
-    const bool is_loop_;
-
-    const Scalar depth_smooth_thres_ratio_;
-    const Scalar min_z_;
-    const Scalar min_d_;
+    const CommonConfig common_config_;
 };
 
 }

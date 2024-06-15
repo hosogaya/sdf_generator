@@ -5,6 +5,8 @@
 #include <sdf_generator/core/type.hpp>
 #include <sdf_generator/integrator/tsdf_integrator.hpp>
 #include <sdf_generator/core/tsdf_map.hpp>
+#include <sdf_generator/point_cloud/point_cloud_processor.hpp>
+#include <sdf_generator/point_cloud/lidar_processor.hpp>
 
 namespace sdf_generator
 {
@@ -142,99 +144,6 @@ inline TsdfMap::Config getTsdfMapConfig(
     return tsdf_config;
 }
 
-
-// inline TsdfIntegratorBase::Config getTsdfIntegratorConfigFromRosParam(
-//     const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
-//     const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
-// )
-// {
-//     TsdfIntegratorBase::Config integrator_config;
-
-//     integrator_config.voxel_carving_enabled_ = true;
-
-//     const TsdfMap::Config tsdf_config = getTsdfMapConfigFromRosParam(node_logger, node_params);
-
-//     double max_weight = integrator_config.max_weight_;
-//     double truncation_distance = -2.0;
-//     bool voxel_carving_enabled_ = integrator_config.voxel_carving_enabled_;
-//     double max_ray_length = integrator_config.max_ray_length_;
-//     double min_ray_length = integrator_config.min_ray_length_;
-
-//     if (getDoubleParam("truncation_distance", node_logger, node_params, truncation_distance))
-//         integrator_config.default_truncation_distance_ =
-//             truncation_distance > 0
-//                 ? truncation_distance
-//                 : -truncation_distance*tsdf_config.tsdf_voxel_size_;
-
-//     if (getBoolParam("voxel_carving_enabled_", node_logger, node_params, voxel_carving_enabled_))
-//         integrator_config.voxel_carving_enabled_ = voxel_carving_enabled_;
-
-//     if (getDoubleParam("max_ray_length_m", node_logger, node_params, max_ray_length))
-//         integrator_config.max_ray_length_ = max_ray_length; 
-
-//     if (getDoubleParam("min_ray_length_m", node_logger, node_params, min_ray_length))
-//         integrator_config.min_ray_length_ = min_ray_length; 
-    
-//     if (getDoubleParam("max_weight", node_logger, node_params, max_weight))
-//         integrator_config.max_weight_ = max_weight;
-
-//     bool use_const_weight = integrator_config.use_const_weight_;  
-//     if (getBoolParam("use_const_weight", node_logger, node_params, use_const_weight))
-//         integrator_config.use_const_weight_ = use_const_weight;
-
-//     bool use_weight_dropoff_ = integrator_config.use_weight_dropoff_;
-//     if (getBoolParam("use_weight_dropoff_", node_logger, node_params, use_weight_dropoff_))
-//         integrator_config.use_weight_dropoff_ = use_weight_dropoff_;
-
-//     bool allow_clear = integrator_config.allow_clear_;
-//     if (getBoolParam("allow_clear", node_logger, node_params, allow_clear))
-//         integrator_config.allow_clear_ = allow_clear;
-
-//     double start_voxel_subsampling_factor = integrator_config.start_voxel_subsampling_factor_;
-//     if (getDoubleParam("start_voxel_subsampling_factor", node_logger, node_params, start_voxel_subsampling_factor))
-//         integrator_config.start_voxel_subsampling_factor_ = start_voxel_subsampling_factor;
-    
-//     int max_consecutive_ray_collisions = integrator_config.max_consecutive_ray_collisions_;
-//     if (getIntParam("max_consecutive_ray_collisions", node_logger, node_params, max_consecutive_ray_collisions))
-//         integrator_config.max_consecutive_ray_collisions_ = max_consecutive_ray_collisions;
-
-//     int clear_checks_every_n_frames = integrator_config.clear_checks_every_n_frames_;
-//     if (getIntParam("clear_checks_every_n_frames", node_logger, node_params, clear_checks_every_n_frames))
-//         integrator_config.clear_checks_every_n_frames_ = clear_checks_every_n_frames;
-
-//     double max_integration_time_s = integrator_config.max_integration_time_s_;
-//     if (getDoubleParam("max_integration_time_s", node_logger, node_params, max_integration_time_s))
-//         integrator_config.max_integration_time_s_ = max_integration_time_s;
-
-//     bool anti_grazing = integrator_config.enable_anti_grazing_;
-//     if (getBoolParam("anti_grazing", node_logger,  node_params, anti_grazing))
-//         integrator_config.enable_anti_grazing_ = anti_grazing;
-
-//     bool use_sparsity_compensation_factor = integrator_config.use_sparsity_compensation_factor_;
-//     if (getBoolParam("use_sparsity_compensation_factor", node_logger, node_params, use_sparsity_compensation_factor))
-//         integrator_config.use_sparsity_compensation_factor_ = use_sparsity_compensation_factor;
-    
-//     double sparsity_compensation_factor = integrator_config.sparsity_compensation_factor_;
-//     if (getDoubleParam("sparsity_compensation_factor", node_logger, node_params, sparsity_compensation_factor))
-//         integrator_config.sparsity_compensation_factor_ = sparsity_compensation_factor;
-    
-//     std::string integration_order_mode = integrator_config.integration_order_mode_;
-//     if (getStringParam("integration_order_mode", node_logger, node_params, integration_order_mode))
-//         integrator_config.integration_order_mode_ = integration_order_mode;
-
-//     int integrator_threads = std::thread::hardware_concurrency();
-//     if (getIntParam("integrator_threads", node_logger, node_params, integrator_threads))
-//         if (integrator_threads < 0) RCLCPP_ERROR(node_logger->get_logger(), "integrator threads must have positive value");
-//         else integrator_config.integrator_threads_ = integrator_threads;
-
-//     bool merge_with_clear = integrator_config.merge_with_clear_;
-//     if (getBoolParam("merge_with_clear", node_logger, node_params, merge_with_clear))
-//         integrator_config.merge_with_clear_ = merge_with_clear;
-
-
-//     return integrator_config;
-// }
-
 inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
     const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
     const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
@@ -244,7 +153,7 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
 
     integrator_config.voxel_carving_enabled_ = true;
 
-    const TsdfMap::Config tsdf_config = getTsdfMapConfigFromRosParam(node_logger, node_params);
+    const TsdfMap::Config tsdf_config = getTsdfMapConfig(node_logger, node_params);
 
     double max_weight = integrator_config.max_weight_;
     double truncation_distance = -2.0;
@@ -348,6 +257,58 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
         integrator_config.reliable_normal_ratio_thre_ = reliable_normal_ratio_thre;
 
     return integrator_config;
+}
+
+inline PointCloudProcessor::CommonConfig getPointCloudProcessorCommonConfig(
+    const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
+    const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
+)
+{
+    PointCloudProcessor::CommonConfig config;
+    getIntParam("sensor_image_width", node_logger, node_params, config.width_);
+    getIntParam("sensor_image_height", node_logger, node_params, config.height_);
+    
+    double min_d = config.min_d_;
+    if (getDoubleParam("point_cloud_min_depth", node_logger, node_params, min_d))
+        config.min_d_ = min_d;
+    
+    double min_z = config.min_z_;
+    if (getDoubleParam("point_cloud_min_z", node_logger, node_params, min_z))
+        config.min_z_ = min_z;
+
+    double depth_smooth_thres_ratio = config.depth_smooth_thres_ratio_;
+    if (getDoubleParam("depth_smooth_thres_ratios", node_logger, node_params, depth_smooth_thres_ratio))
+        config.depth_smooth_thres_ratio_ = depth_smooth_thres_ratio;
+    
+    getBoolParam("point_cloud_is_loop", node_logger, node_params, config.is_loop_);
+
+    return config;
+}
+
+inline LidarProcessor::LidarConfig getLidarConfig(
+    const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
+    const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
+)
+{
+    LidarProcessor::LidarConfig config;
+    
+    double min_yaw_fov_rad = config.min_yaw_fov_rad_;
+    if (getDoubleParam("min_yaw_fov_rad", node_logger, node_params, min_yaw_fov_rad))
+        config.min_yaw_fov_rad_ = min_yaw_fov_rad;
+
+    double yaw_fov_rad_range = config.yaw_fov_rad_range_;
+    if (getDoubleParam("yaw_fov_rad_range", node_logger, node_params, yaw_fov_rad_range))
+        config.yaw_fov_rad_range_ = yaw_fov_rad_range;
+    
+    double min_pitch_fov_rad = config.min_pitch_fov_rad_;
+    if (getDoubleParam("min_pitch_fov_rad", node_logger, node_params, min_pitch_fov_rad))
+        config.min_pitch_fov_rad_ = min_pitch_fov_rad;
+
+    double pitch_fov_rad_range = config.pitch_fov_rad_range_;
+    if (getDoubleParam("pitch_fov_rad_range", node_logger, node_params, pitch_fov_rad_range))
+        config.pitch_fov_rad_range_ = pitch_fov_rad_range;
+
+    return config;
 }
 
 }
