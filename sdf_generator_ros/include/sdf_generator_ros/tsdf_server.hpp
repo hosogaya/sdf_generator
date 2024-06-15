@@ -8,6 +8,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 
 #include <sdf_generator_ros/ros_params.hpp>
+#include <sdf_generator_ros/msg_conversion.hpp>
 #include <sdf_generator/core/tsdf_map.hpp>
 
 // point cloud process
@@ -38,6 +39,8 @@ public:
 protected:
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_point_cloud_;
     void pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniquePtr msg);
+
+    rclcpp::Publisher<sdf_msgs::msg::Layer>::SharedPtr pub_layer_;
 
     bool getTransform(const std::string& target, const std::string& source, 
                     const rclcpp::Time& sub_time, TransformMatrix<Scalar>& tf_mat);

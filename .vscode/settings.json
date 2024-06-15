@@ -71,6 +71,11 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "semaphore": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "csignal": "cpp",
+        "strstream": "cpp",
+        "codecvt": "cpp",
+        "future": "cpp",
+        "cfenv": "cpp"
     }
 }

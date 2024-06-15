@@ -7,8 +7,6 @@
                 "/usr/include/opencv4",
                 "/usr/include/pcl-1.12",
                 "/usr/include/eigen3",
-                "${workspaceFolder}/include",
-                "/usr/include/pcl-1.10",
                 "/opt/ros/humble/include",
                 "/opt/ros/humble/include/rclcpp",
                 "/opt/ros/humble/include/rcl",
@@ -33,7 +31,8 @@
                 "/opt/ros/humble/include/message_filters",
                 "/opt/ros/humble/include/pcl_msgs",
                 "/opt/ros/humble/include/rclcpp_components",
-                "/opt/ros/humble/include/class_loader"
+                "/opt/ros/humble/include/class_loader",
+                "${workspaceFolder}/build/sdf_msgs/rosidl_generator_cpp"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
