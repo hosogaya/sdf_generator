@@ -7,7 +7,7 @@
 
 #include <pcl_conversions/pcl_conversions.h>
 
-#include <sdf_generator/ros2/ros_params.hpp>
+#include <sdf_generator_ros/ros_params.hpp>
 #include <sdf_generator/core/tsdf_map.hpp>
 
 // point cloud process

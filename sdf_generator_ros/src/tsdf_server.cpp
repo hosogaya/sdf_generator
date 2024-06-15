@@ -1,4 +1,4 @@
-#include <sdf_generator/ros2/tsdf_server.hpp>
+#include <sdf_generator_ros/tsdf_server.hpp>
 
 namespace sdf_generator
 {
