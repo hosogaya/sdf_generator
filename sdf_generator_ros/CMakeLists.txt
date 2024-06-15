@@ -40,36 +40,35 @@ set (dependencies
 
 set(node_plugins "")
 
-function(add_components base_name class_name)
-	add_library(${base_name} SHARED src/${base_name}.cpp)
-  ament_target_dependencies(${base_name} ${dependencies})
-  # target_link_libraries(${base_name} ${PCL_LIBRARIES})
-  target_include_directories(${base_name}
-    PUBLIC
-      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-      "$<INSTALL_INTERFACE:include>"
-      # ${EIGEN3_INCLUDE_DIR} 
-      # ${PCL_INCLUDE_DIR} 
-      # ${OpenCV_INCLUDE_DIRS}
-  )
-  rclcpp_components_register_nodes(${base_name} "sdf_generator::${class_name}")
-  set(node_plugins "${node_plugins}sdf_generator::${class_name};$<TARGET_FILE:${base_name}>\n")
-  ament_export_targets(${base_name} HAS_LIBRARY_TARGET)
+# tsdf server
+add_library(tsdf_server SHARED src/tsdf_server.cpp)
+ament_target_dependencies(tsdf_server ${dependencies})
+target_include_directories(tsdf_server
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>"
+)
+rclcpp_components_register_nodes(tsdf_server "sdf_generator::TsdfServer")
+set(node_plugins "${node_plugins}sdf_generator::TsdfServer;$<TARGET_FILE:tsdf_server>\n")
+ament_export_targets(tsdf_server HAS_LIBRARY_TARGET)
 
-  install(
-    TARGETS ${base_name}
-    EXPORT ${base_name}
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-  )
-endfunction()
-
-add_components(tsdf_server TsdfServer)
+install(
+  TARGETS tsdf_server
+  EXPORT tsdf_server
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
 
 install(
   DIRECTORY include/
   DESTINATION include
 )
 
+install(
+  DIRECTORY launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+ament_export_dependencies(${dependencies})
 ament_package()
