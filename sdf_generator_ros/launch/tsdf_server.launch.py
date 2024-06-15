@@ -23,6 +23,7 @@ def launch_setup(context, *args, **kwargs):
         PythonLaunchDescriptionSource([get_package_share_directory("sdf_generator_ros"), "/launch/load_tsdf_server.launch.py"]), 
         launch_arguments={
             "container_name": TextSubstitution(text=container_name), 
+            "param_file_path": TextSubstitution(text=os.path.join(get_package_share_directory("sdf_generator_ros"), 'config/tsdf_server.param.yaml')), 
         }.items()
     )
     

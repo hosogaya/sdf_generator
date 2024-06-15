@@ -277,7 +277,7 @@ inline PointCloudProcessor::CommonConfig getPointCloudProcessorCommonConfig(
         config.min_z_ = min_z;
 
     double depth_smooth_thres_ratio = config.depth_smooth_thres_ratio_;
-    if (getDoubleParam("depth_smooth_thres_ratios", node_logger, node_params, depth_smooth_thres_ratio))
+    if (getDoubleParam("depth_smooth_thres_ratio", node_logger, node_params, depth_smooth_thres_ratio))
         config.depth_smooth_thres_ratio_ = depth_smooth_thres_ratio;
     
     getBoolParam("point_cloud_is_loop", node_logger, node_params, config.is_loop_);

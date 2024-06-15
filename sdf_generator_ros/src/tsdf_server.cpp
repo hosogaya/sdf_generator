@@ -25,7 +25,6 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
     */
     world_frame_ = declare_parameter("world_frame", "map");
     sensor_frame_ = declare_parameter("sensor_frame", "sensor_frame");
-    std::string integration_method = declare_parameter("integration_method", "simple");
     std::string color_map_method = declare_parameter("color_map_method", "rainbow");
     std::string sensor_type = declare_parameter("sensor_type", "lidar");
 
@@ -34,7 +33,7 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
     */
     tsdf_map_ = std::make_shared<TsdfMap>(map_config);
     // tsdf integrator
-    if (integration_method == "simple") 
+    if (integrator_config.integration_order_mode_ == "simple") 
         tsdf_integrator_.reset(new SimpleTsdfIntegrator(integrator_config, tsdf_map_->getTsdfLayerPtr()));
     else 
     {

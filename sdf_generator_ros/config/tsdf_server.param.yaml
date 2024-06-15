@@ -1,0 +1,47 @@
+tsdf_server:
+  ros__parameters:
+    world_frame: map
+    senosr_frame: lidar
+    color_map_method: grayscale
+    sensor_type: lidar
+    # map
+    tsdf_voxel_size: 0.1
+    tsdf_voxels_per_side: 8
+    # integrator
+    truncation_distance: 0.1
+    voxel_carving_enabled: true
+    max_ray_length_m: 0.1
+    min_ray_length_m: 5.0
+    max_weight: 10000.0
+    use_const_weight:  false
+    use_weight_dropoff: true
+    allow_clear: true
+    start_voxel_subsampling_factor: 2.0
+    max_consecutive_ray_collisions: 2
+    clear_checks_every_n_frames: 1
+
+    # max_integration_time_s: 
+    anti_grazing: false
+    use_sparsity_compensation_factor: false
+    sparsity_compensation_factor:  1.0
+    integration_order_mode: "simple"
+    integrator_threads: 4
+    merge_with_clear: true
+    weight_reduction_exp: 1.0
+    weight_dropoff_epsilon: -1.0
+    normal_available: true
+    reliable_band_ratio: 2.0
+    curve_assumption: true
+    reliable_normal_ratio_thre: 0.1 
+
+    #　sensor
+    sensor_image_width: 640
+    sensor_image_height: 320
+    point_cloud_min_depth: 0.15
+    point_cloud_min_z: -0.5
+    depth_smooth_thres_ratios: 0.05
+    point_cloud_is_loop: true
+    min_yaw_fov_rad: -3.14
+    yaw_fov_rad_range: 6.28
+    min_pitch_fov_rad: -0.785
+    pitch_fov_rad_range: 1.57

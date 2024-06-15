@@ -7,13 +7,14 @@ from ament_index_python import get_package_share_directory
 import os
 import yaml
 
-def read_yaml(file_path: str, prefix: str):
+def read_yaml(file_path: str):
     with open(file_path, 'r') as f:
         data = yaml.safe_load(f)
-        params = data[prefix]['ros__parameters']
+        params = data["tsdf_server"]['ros__parameters']
     return params
 
 def launch_setup(context, *args, **kwargs):
+    param = read_yaml(LaunchConfiguration("param_file_path").perform(context))
 
     load_composable_nodes = LoadComposableNodes(
         target_container=LaunchConfiguration("container_name"),
@@ -23,6 +24,7 @@ def launch_setup(context, *args, **kwargs):
                 plugin="sdf_generator::TsdfServer",
                 name="tsdf_server",
                 extra_arguments=[{"use_intra_process_comms": True}],
+                parameters=[param],
             ),
         ],
     )
@@ -35,8 +37,17 @@ def generate_launch_description():
     arg_container_name = DeclareLaunchArgument(
         "container_name", default_value=TextSubstitution(text="my_container")
     )
+    arg_param_file_path = DeclareLaunchArgument(
+        "param_file_path", default_value=TextSubstitution(
+            text=os.path.join(
+                get_package_share_directory("sdf_generator_ros"), 
+                'config', 'tsdf_map.param.yaml'
+            )
+        )
+    )
 
     return LaunchDescription([
         arg_container_name,
+        arg_param_file_path,
         OpaqueFunction(function=launch_setup)
     ])
