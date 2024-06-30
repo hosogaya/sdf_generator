@@ -88,10 +88,27 @@ public:
     inline VoxelType& getVoxel(const Point& coords) {return voxels_[calLinearIndex(coords)];}
 
     inline const VoxelType& getConstVoxel(size_t index) const {return voxels_[index];}
+    inline const VoxelType& getConstVoxel(const VoxelIndex& index) const {return voxels_[calLinearIndex(index)];}
+    inline const VoxelType& getConstVoxel(const Point& coords) const {return voxels_[calLinearIndex(coords)];}
+
 
     bool updated(Update::Status status) const {return updated_[status];}
     void setUpdated(Update::Status status, bool value) {updated_[status] = value;}
     void setUpdatedAll() {updated_.set();}
+
+    bool isValidVoxelIndex(const VoxelIndex& index) const
+    {
+        if (index.x() < 0 || index.x() >= voxels_per_side_) return false;
+        if (index.y() < 0 || index.y() >= voxels_per_side_) return false;
+        if (index.z() < 0 || index.z() >= voxels_per_side_) return false;
+
+        return true;
+    }
+
+    BlockIndex blockIndex() const 
+    {
+        return calGridIndex<BlockIndex>(origin_, block_size_inv_);
+    }
 
     size_t voxelsPerSide() const {return voxels_per_side_;}
     Scalar voxelSize() const {return voxel_size_;}

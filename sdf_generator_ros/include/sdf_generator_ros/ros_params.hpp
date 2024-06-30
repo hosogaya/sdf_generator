@@ -7,6 +7,7 @@
 #include <sdf_generator/core/tsdf_map.hpp>
 #include <sdf_generator/point_cloud/point_cloud_processor.hpp>
 #include <sdf_generator/point_cloud/lidar_processor.hpp>
+#include <sdf_generator/mesh/mesh_integrator.hpp>
 
 namespace sdf_generator
 {
@@ -225,9 +226,11 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
 
     int integrator_threads = std::thread::hardware_concurrency();
     if (getIntParam("integrator_threads", node_logger, node_params, integrator_threads))
+    {
         if (integrator_threads < 0) RCLCPP_ERROR(node_logger->get_logger(), "integrator threads must have positive value");
         else integrator_config.integrator_threads_ = integrator_threads;
-
+    }
+    
     bool merge_with_clear = integrator_config.merge_with_clear_;
     if (getBoolParam("merge_with_clear", node_logger, node_params, merge_with_clear))
         integrator_config.merge_with_clear_ = merge_with_clear;
@@ -307,6 +310,22 @@ inline LidarProcessor::LidarConfig getLidarConfig(
     double pitch_fov_rad_range = config.pitch_fov_rad_range_;
     if (getDoubleParam("pitch_fov_rad_range", node_logger, node_params, pitch_fov_rad_range))
         config.pitch_fov_rad_range_ = pitch_fov_rad_range;
+
+    return config;
+}
+
+inline MeshIntegratorConfig getMeshIntegratorConfig(
+    const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
+    const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
+)
+{
+    MeshIntegratorConfig config;
+
+    double min_weight = config.min_weight_;
+    if (getDoubleParam("mesh_min_wegiht", node_logger, node_params, min_weight))
+        config.min_weight_ = min_weight;
+    
+    getBoolParam("mesh_use_color", node_logger, node_params, config.use_color_);
 
     return config;
 }

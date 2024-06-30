@@ -9,10 +9,10 @@ class LidarProcessor : public PointCloudProcessor
 public:
     struct LidarConfig
     {
-        Scalar min_yaw_fov_rad_;
-        Scalar yaw_fov_rad_range_;
-        Scalar min_pitch_fov_rad_;
-        Scalar pitch_fov_rad_range_;
+        Scalar min_yaw_fov_rad_ = -M_PI;
+        Scalar yaw_fov_rad_range_ = 2*M_PI;
+        Scalar min_pitch_fov_rad_ = -M_PI_2;
+        Scalar pitch_fov_rad_range_ = M_PI;
     };
 
     LidarProcessor(const CommonConfig& common_config, const LidarConfig& lidar_config);

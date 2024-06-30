@@ -79,6 +79,21 @@ public:
         }
     }
 
+    void getAllUpdatedBlocks(Update::Status bit, BlockIndexList& blocks) const
+    {
+        blocks.clear();
+        blocks.reserve(block_map_.size());
+        for (const std::pair<const BlockIndex, typename BlockType::Ptr>& kv: block_map_)
+        {
+            if (kv.second->updated(bit)) blocks.emplace_back(kv.first);
+        }
+    }
+
+    bool hasBlock(const BlockIndex& block_index) const
+    {
+        return block_map_.count(block_index) > 0;
+    }
+
     // getter
     Scalar blockSize() const {return block_size_;}
     Scalar blockSizeInv() const {return block_size_inv_;}

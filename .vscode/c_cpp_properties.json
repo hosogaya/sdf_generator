@@ -42,7 +42,8 @@
                 "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
                 "/opt/ros/humble/include/pluginlib",
                 "/opt/ros/humble/include/ament_index_cpp",
-                "/opt/ros/humble/include/rviz_rendering"
+                "/opt/ros/humble/include/rviz_rendering",
+                "${workspaceFolder}/sdf_generator/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

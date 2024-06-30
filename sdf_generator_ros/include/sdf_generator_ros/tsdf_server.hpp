@@ -22,6 +22,12 @@
 #include <sdf_generator/point_cloud/color_maps/gray_scale_color_map.hpp>
 #include <sdf_generator/point_cloud/color_maps/rainbow_color_map.hpp>
 
+// msg
+#include <sdf_msgs/msg/mesh.hpp>
+
+// mesh
+#include <sdf_generator/mesh/mesh_integrator.hpp>
+
 namespace sdf_generator
 {
 class TsdfServer : public rclcpp::Node
@@ -32,7 +38,8 @@ public:
     TsdfServer(const rclcpp::NodeOptions options);
     TsdfServer(const rclcpp::NodeOptions options, 
             const TsdfMap::Config& map_config,
-            const TsdfIntegratorBase::Config& integrator_config);
+            const TsdfIntegratorBase::Config& integrator_config,
+            const MeshIntegratorConfig& mesh_integrator_config);
 
     ~TsdfServer();
 
@@ -40,7 +47,11 @@ protected:
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_point_cloud_;
     void pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniquePtr msg);
 
+    rclcpp::TimerBase::SharedPtr mesh_timer_;
+    void meshTimerCallback();
+
     rclcpp::Publisher<sdf_msgs::msg::Layer>::SharedPtr pub_layer_;
+    rclcpp::Publisher<sdf_msgs::msg::Mesh>::SharedPtr pub_mesh_;
 
     bool getTransform(const std::string& target, const std::string& source, 
                     const rclcpp::Time& sub_time, TransformMatrix<Scalar>& tf_mat);
@@ -56,6 +67,10 @@ protected:
 
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     std::unique_ptr<tf2_ros::Buffer> tf_buffer_;
+
+    std::shared_ptr<MeshLayer> mesh_layer_;
+    std::shared_ptr<MeshIntegrator<TsdfVoxel>> mesh_integrator_;
+    ColorMode mesh_color_mode_;
 };
 
 }

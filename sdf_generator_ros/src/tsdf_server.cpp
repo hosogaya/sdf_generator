@@ -5,12 +5,14 @@ namespace sdf_generator
 TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
 : TsdfServer(options, 
     getTsdfMapConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()), 
-    getTsdfIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()))
+    getTsdfIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()),
+    getMeshIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()))
 {}
 
 TsdfServer::TsdfServer(const rclcpp::NodeOptions options, 
             const TsdfMap::Config& map_config,
-            const TsdfIntegratorBase::Config& integrator_config)
+            const TsdfIntegratorBase::Config& integrator_config, 
+            const MeshIntegratorConfig& mesh_integrator_config)
 : rclcpp::Node("tsdf_server", options)
 {
     /**
@@ -18,6 +20,9 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
     */
     pub_layer_ = create_publisher<sdf_msgs::msg::Layer>(
         "ouput/layer", 1
+    );
+    pub_mesh_ = create_publisher<sdf_msgs::msg::Mesh>(
+        "output/mesh", 1
     );
     sub_point_cloud_ = create_subscription<sensor_msgs::msg::PointCloud2>(
         "input/point_cloud", 1, std::bind(&TsdfServer::pointCloudCallback, this, std::placeholders::_1)
@@ -30,6 +35,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
     sensor_frame_ = declare_parameter("sensor_frame", "sensor_frame");
     std::string color_map_method = declare_parameter("color_map_method", "rainbow");
     std::string sensor_type = declare_parameter("sensor_type", "lidar");
+    int mesh_publish_hz = declare_parameter<int>("mesh_publish_hz", 10);
+    std::string mesh_color_mode_string = declare_parameter("mesh_color_mode", "color");
 
     /**
      * Construction
@@ -69,10 +76,20 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
         rclcpp::shutdown();
     }
 
+    // mesh 
+    mesh_color_mode_ = getColorMode(mesh_color_mode_string);
+    mesh_layer_.reset(new MeshLayer(tsdf_map_->blockSize()));
+    mesh_integrator_.reset(new MeshIntegrator<TsdfVoxel>(
+        mesh_integrator_config, tsdf_map_->getTsdfLayerPtr().get(), mesh_layer_.get()
+    ));
+
     // tf
     tf_buffer_.reset(new tf2_ros::Buffer(get_clock()));
     tf_listener_.reset(new tf2_ros::TransformListener(*tf_buffer_));
 
+    // timer
+    auto mesh_dt = std::chrono::microseconds(int(1e6)/mesh_publish_hz);
+    mesh_timer_ = create_wall_timer(mesh_dt, std::bind(&TsdfServer::meshTimerCallback, this));
 }
 
 TsdfServer::~TsdfServer() {}
@@ -157,7 +174,28 @@ bool TsdfServer::getTransform(const std::string& target, const std::string& sour
     catch (tf2::TransformException& ex)
     {
         RCLCPP_WARN_THROTTLE(get_logger(), *get_clock(), 10, "%s", ex.what());
+        return false;
     }
+
+    return true;
+}
+
+void TsdfServer::meshTimerCallback()
+{
+    constexpr bool only_mesh_updated_blocks = true;
+    constexpr bool clear_updated_flag = true;
+
+    // integrate mesh
+    mesh_integrator_->generateMesh(only_mesh_updated_blocks, clear_updated_flag);
+
+    // generate mesh msg
+    sdf_msgs::msg::Mesh::UniquePtr mesh_msg(new sdf_msgs::msg::Mesh);
+    generateMeshMsg(mesh_layer_.get(), mesh_color_mode_, mesh_msg.get());    
+    mesh_msg->header.frame_id = world_frame_;
+    mesh_msg->header.stamp = now();
+
+    // pulish
+    pub_mesh_->publish(std::move(mesh_msg));
 }
 
 }

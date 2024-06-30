@@ -2,6 +2,8 @@
 
 #include <sdf_generator/core/layer.hpp>
 #include <sdf_msgs/msg/layer.hpp>
+#include <sdf_generator/mesh/mesh_layer.hpp>
+#include <sdf_msgs/msg/mesh.hpp>
 
 namespace sdf_generator
 {
@@ -58,7 +60,7 @@ inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::Layer& msg)
         Point origin = calOrigin(index, layer->blockSize());
         Block<TsdfVoxel>::Ptr block_ptr = std::make_shared<Block<TsdfVoxel>>(layer->voxelSize(), layer->voxelsPerSide(), origin);
 
-        for (int i=0; i<block_ptr->numVoxels(); ++i)
+        for (size_t i=0; i<block_ptr->numVoxels(); ++i)
         {
             auto voxel = block_ptr->getVoxel(i);
             voxel.occupied_ = block.voxels[i].has_data;
@@ -81,4 +83,170 @@ inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::Layer& msg)
 
     return layer;
 }
+
+
+/**************************
+ * Mesh conversion
+ ***************************/
+
+enum ColorMode {
+  kColor = 0,
+  kHeight,
+  kNormals,
+  kGray,
+};
+
+
+inline ColorMode getColorMode(const std::string& color_mode_string)
+{
+    if (color_mode_string.empty()) return ColorMode::kColor;
+    else
+    {
+        if (color_mode_string == "color" || color_mode_string == "colors")
+            return ColorMode::kColor;
+        else if (color_mode_string == "height")
+            return ColorMode::kHeight;
+        else if (color_mode_string == "normals")
+            return ColorMode::kNormals;
+        else 
+            return ColorMode::kGray;
+    }
+}
+
+inline void colorToMsg(
+    const Color& color, std_msgs::msg::ColorRGBA& color_msg
+)
+{
+    color_msg.r = color.r_ / 255.0;
+    color_msg.g = color.g_ / 255.0;
+    color_msg.b = color.b_ / 255.0;
+    color_msg.a = color.a_ / 255.0;
+}
+
+inline void heightColor(
+    const Point& vertex, std_msgs::msg::ColorRGBA& color_msg
+)
+{
+    const double min_z = -1;
+    const double max_z = 10;
+    double mapped_height = std::min<Scalar>(
+        std::max<Scalar>(
+            (vertex.z() - min_z)/(max_z - min_z), 0.0
+        ), 1.0
+    );
+    colorToMsg(Color::convert2Rainbow(mapped_height), color_msg);
+}
+
+inline void normalColor(
+    const Vector3& normal, std_msgs::msg::ColorRGBA& color_msg
+)
+{
+    color_msg.r = normal.x()*0.5 + 0.5;
+    color_msg.g = normal.y()*0.5 + 0.5;
+    color_msg.b = normal.z()*0.5 + 0.5;
+    color_msg.a = 1.0;
+}
+
+inline std_msgs::msg::ColorRGBA getVertexColor(
+    const Mesh::ConstPtr& mesh, const ColorMode& color_mode, 
+    const size_t index
+)
+{
+    std_msgs::msg::ColorRGBA color_msg;
+    switch (color_mode)
+    {
+        case kColor:
+            colorToMsg(mesh->colors_[index], color_msg);
+            break;
+        case kHeight:
+            heightColor(mesh->vertices_[index], color_msg);
+            break;
+        case kNormals:
+            normalColor(mesh->normals_[index], color_msg);
+            break;
+        case kGray:
+            color_msg.r = 0.5f;
+            color_msg.g = 0.5f;
+            color_msg.b = 0.5f;
+            color_msg.a = 1.0f;
+    }
+
+    return color_msg;
+}
+
+
+inline void generateMeshMsg(
+    MeshLayer* mesh_layer, ColorMode color_mode,
+    sdf_msgs::msg::Mesh* mesh_msg
+)
+{
+    // time stamp
+
+    BlockIndexList mesh_indices;
+    mesh_layer->getAllUpdatedMeshes(&mesh_indices);
+
+    mesh_msg->block_edge_length = mesh_layer->blockSize();
+    mesh_msg->mesh_blocks.reserve(mesh_indices.size());
+
+    for (const BlockIndex& block_index: mesh_indices)
+    {
+        Mesh::Ptr mesh = mesh_layer->getMeshPtr(block_index);
+
+        sdf_msgs::msg::MeshBlock mesh_block;
+        mesh_block.index[0] = block_index.x();
+        mesh_block.index[1] = block_index.y();
+        mesh_block.index[2] = block_index.z();
+    
+        mesh_block.x.reserve(mesh->vertices_.size());
+        mesh_block.y.reserve(mesh->vertices_.size());
+        mesh_block.z.reserve(mesh->vertices_.size());
+
+        // normal coloring is used by Rviz plugin by default, so no need to send it
+        if (color_mode != kNormals)
+        {
+            mesh_block.r.reserve(mesh->vertices_.size());
+            mesh_block.g.reserve(mesh->vertices_.size());
+            mesh_block.b.reserve(mesh->vertices_.size());
+        }
+        for (size_t i=0; i<mesh->vertices_.size(); ++i)
+        {
+            // We convert from an absolute global frame to a normalized local frame.
+            // Each vertex is given as its distance from the blocks origin in units of
+            // (2*block_size). This results in all points obtaining a value in the
+            // range 0 to 1. To enforce this 0 to 1 range we technically only need to
+            // divide by (block_size + voxel_size). The + voxel_size comes from the
+            // way marching cubes allows the mesh to interpolate between this and a
+            // neighboring block. We instead divide by (block_size + block_size) as
+            // the mesh layer has no knowledge of how many voxels are inside a block.
+            
+            const Point normalized_vertex = 0.5f*(mesh_layer->blockSizeInv()*mesh->vertices_[i] - block_index.cast<Scalar>());
+
+            if (normalized_vertex.squaredNorm() > 1.0f) continue;
+            
+            // convert to unit16_t fixed point representation
+            mesh_block.x.push_back(std::numeric_limits<uint16_t>::max()*normalized_vertex.x());
+            mesh_block.y.push_back(std::numeric_limits<uint16_t>::max()*normalized_vertex.y());
+            mesh_block.z.push_back(std::numeric_limits<uint16_t>::max()*normalized_vertex.z());
+
+            if (color_mode != kNormals)
+            {
+                const std_msgs::msg::ColorRGBA color_msg = getVertexColor(mesh, color_mode, i);
+                mesh_block.r.push_back(std::numeric_limits<uint8_t>::max()*color_msg.r);
+                mesh_block.g.push_back(std::numeric_limits<uint8_t>::max()*color_msg.g);
+                mesh_block.b.push_back(std::numeric_limits<uint8_t>::max()*color_msg.b);
+            }
+        }
+
+        mesh_msg->mesh_blocks.push_back(mesh_block);
+
+        // delete empty mesh blocks after sending them
+        if (!mesh->hasVertices())
+        {
+            mesh_layer->removeMesh(block_index);
+        }
+
+        mesh->update_ = false;
+    }
+}
+
 }
