@@ -18,6 +18,9 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Voxel.msg"
   "msg/Block.msg"
   "msg/Layer.msg"
+  "msg/MeshBlock.msg"
+  "msg/Mesh.msg"
+  "msg/MultiMesh.msg"
   DEPENDENCIES std_msgs geometry_msgs
 )
 

@@ -32,7 +32,17 @@
                 "/opt/ros/humble/include/pcl_msgs",
                 "/opt/ros/humble/include/rclcpp_components",
                 "/opt/ros/humble/include/class_loader",
-                "${workspaceFolder}/build/sdf_msgs/rosidl_generator_cpp"
+                "${workspaceFolder}/build/sdf_msgs/rosidl_generator_cpp",
+                "/usr/include/pcl-1.10",
+                "/opt/ros/humble/include/rviz_common",
+                "/usr/include/OGRE",
+                "/usr/include/x86_64-linux-gnu/qt5/QtGui",
+                "/usr/include/x86_64-linux-gnu/qt5",
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
+                "/opt/ros/humble/include/pluginlib",
+                "/opt/ros/humble/include/ament_index_cpp",
+                "/opt/ros/humble/include/rviz_rendering"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
