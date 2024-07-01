@@ -1,9 +1,4 @@
-#include <sdf_rviz_plugins/mesh_visual.hpp>
-
-#include <OGRE/OgreSceneManager.h>
-#include <OGRE/OgreSceneNode.h>
-
-#include <sdf_generator/mesh/util.hpp>
+#include <sdf_rviz_plugins/mesh_visual.h>
 
 namespace sdf_rviz_plugins
 {

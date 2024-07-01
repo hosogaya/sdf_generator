@@ -1,7 +1,5 @@
-#include <sdf_rviz_plugins/material_loader.hpp>
-
-#include <OGRE/OgreResourceGroupManager.h>
-#include <ament_index_cpp/get_package_share_directory.hpp>
+#include <sdf_rviz_plugins/material_loader.h>
+#include <iostream>
 
 namespace sdf_rviz_plugins {
 
@@ -13,6 +11,8 @@ void MaterialLoader::loadMaterials() {
   }
   std::string path = ament_index_cpp::get_package_share_directory("sdf_rviz_plugins")
                     + "/content/materials";
+
+  std::cout << "material path: " << path << std::endl; 
 
   // first instance loads a custom ogre material that supports transparent
   // colors.

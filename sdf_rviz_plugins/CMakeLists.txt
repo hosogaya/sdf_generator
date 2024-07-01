@@ -14,16 +14,16 @@ find_package(rviz_rendering REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rviz_ogre_vendor REQUIRED)
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
-
+find_package(pluginlib REQUIRED)
 
 include_directories(include ${OGRE_INCLUDE_DIRS} ${OGRE_INCLUDE_DIRS}/Paging)
 
 set(CMAKE_AUTOMOC ON)
 
 set(sdf_rviz_plugins_headers_to_moc
-  include/sdf_rviz_plugins/material_loader.hpp
-  include/sdf_rviz_plugins/mesh_visual.hpp
-  include/sdf_rviz_plugins/mesh_display.hpp
+  include/sdf_rviz_plugins/material_loader.h
+  include/sdf_rviz_plugins/mesh_visual.h
+  include/sdf_rviz_plugins/mesh_display.h
 )
 
 foreach(header "${sdf_rviz_plugins_headers_to_moc}")
@@ -42,6 +42,7 @@ set (dependencies
   sdf_msgs
   sdf_generator
   rviz_common
+  rviz_rendering
 )
 
 add_library(${PROJECT_NAME} SHARED
@@ -64,6 +65,11 @@ install(TARGETS
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include
+)
+
+install(
+  DIRECTORY content
+  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

@@ -4,12 +4,17 @@
 #include <map>
 #include <string>
 
-#include <OGRE/OgreManualObject.h>
+#include <OgreManualObject.h>
 
 #include <sdf_generator/core/block.hpp>
 #include <sdf_generator/core/hash.hpp>
 #include <sdf_msgs/msg/mesh.hpp>
 #include <sdf_msgs/msg/multi_mesh.hpp>
+
+#include <OgreSceneManager.h>
+#include <OgreSceneNode.h>
+
+#include <sdf_generator/mesh/util.hpp>
 
 namespace sdf_rviz_plugins
 {

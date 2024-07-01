@@ -1,23 +1,19 @@
-#include <sdf_rviz_plugins/mesh_display.hpp>
-#include <OGRE/OgreSceneManager.h>
-#include <OGRE/OgreSceneNode.h>
-
-#include <rviz_common/visualization_manager.hpp>
-#include <tf2_ros/transform_listener.h>
-#include <tf2_ros/buffer.h>
-#include <sdf_rviz_plugins/material_loader.hpp>
+#include <sdf_rviz_plugins/mesh_display.h>
 
 namespace sdf_rviz_plugins
 {
 MeshDisplay::MeshDisplay()
-: visible_property_(
-          "Visible", true,
-          "Show or hide the mesh. If the mesh is hidden but not disabled, it "
-          "will persist and is incrementally built in the background.",
-          this, SLOT(visibleSlot()))
 {
     MaterialLoader::loadMaterials();
+    visible_property_ = std::make_shared<rviz_common::properties::BoolProperty>(
+        "Visible", true,
+        "Show or hide the mesh. If the mesh is hidden but not disabled, it "
+        "will persist and is incrementally built in the background.",
+        this, SLOT(visibleSlot())
+    );
 }
+
+MeshDisplay::~MeshDisplay() {}
 
 void MeshDisplay::onInitialize()
 {
@@ -34,10 +30,11 @@ void MeshDisplay::visibleSlot()
 {
     if (visual_)
     {
-        visual_->setEnabled(visible_property_.getBool());
-        if (visible_property_.getBool())
+        visual_->setEnabled(visible_property_->getBool());
+        if (visible_property_->getBool())
         {
             // update transformation
+            updateTransform(context_->getClock()->now());
         }
     }
 }
@@ -49,7 +46,7 @@ void MeshDisplay::processMessage(
     if (!visual_)
     {
         visual_ = std::make_unique<MeshVisual>(context_->getSceneManager(), scene_node_);
-        visual_->setEnabled(visible_property_.getBool());
+        visual_->setEnabled(visible_property_->getBool());
     }
 
     // update the frame, pose and mesh of the visual
@@ -80,3 +77,6 @@ bool MeshDisplay::updateTransform(const rclcpp::Time& stamp)
 }
 
 }
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(sdf_rviz_plugins::MeshDisplay, rviz_common::Display)
