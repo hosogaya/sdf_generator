@@ -18,25 +18,41 @@ inline bool getBoolParam(
     bool& value
 )
 {
-    rcl_interfaces::msg::ParameterDescriptor desc;
-    desc.name = param_name;
-    desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
-    desc.read_only = false;
-    desc.dynamic_typing = true;
-
-    node_params->declare_parameter(desc.name, rclcpp::ParameterValue(), desc);
-
-    rclcpp::Parameter param;
-    const bool got_param = node_params->get_parameter(desc.name, param);
-
-    if (!got_param) return false;
-    if (rclcpp::PARAMETER_BOOL != param.get_type())
+    if (!node_params->has_parameter(param_name))
     {
-        RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
-        return false;
+        rcl_interfaces::msg::ParameterDescriptor desc;
+        desc.name = param_name;
+        desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_BOOL;
+        desc.read_only = false;
+        desc.dynamic_typing = true;
+
+        node_params->declare_parameter(desc.name, rclcpp::ParameterValue(value), desc);
+
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(desc.name, param);
+
+        if (!got_param) return false;
+        if (rclcpp::PARAMETER_BOOL != param.get_type())
+        {
+            RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
+            return false;
+        }
+
+        value = param.get_parameter_value().get<bool>();
+    }
+    else 
+    {
+        RCLCPP_INFO(node_logger->get_logger(), "Read %s once more", param_name.c_str());
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(param_name, param);
+        if (!got_param || rclcpp::PARAMETER_BOOL != param.get_type()) 
+        {   
+            RCLCPP_WARN(node_logger->get_logger(), "Failed to read %s", param_name.c_str());
+            return false;
+        }
+        value = param.get_parameter_value().get<bool>();
     }
 
-    value = param.get_parameter_value().get<bool>();
     return true;
 }
 
@@ -47,25 +63,40 @@ inline bool getStringParam(
     std::string& value
 )
 {
-    rcl_interfaces::msg::ParameterDescriptor desc;
-    desc.name = param_name;
-    desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_STRING;
-    desc.read_only = false;
-    desc.dynamic_typing = true;
-
-    node_params->declare_parameter(desc.name, rclcpp::ParameterValue(), desc);
-
-    rclcpp::Parameter param;
-    const bool got_param = node_params->get_parameter(desc.name, param);
-
-    if (!got_param) return false;
-    if (rclcpp::PARAMETER_STRING != param.get_type())
+    if (!node_params->has_parameter(param_name))
     {
-        RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
-        return false;
+        rcl_interfaces::msg::ParameterDescriptor desc;
+        desc.name = param_name;
+        desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_STRING;
+        desc.read_only = false;
+        desc.dynamic_typing = true;
+
+        node_params->declare_parameter(desc.name, rclcpp::ParameterValue(value), desc);
+
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(desc.name, param);
+
+        if (!got_param) return false;
+        if (rclcpp::PARAMETER_STRING != param.get_type())
+        {
+            RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
+            return false;
+        }
+
+        value = param.get_parameter_value().get<std::string>();
+    }
+    else {
+        RCLCPP_INFO(node_logger->get_logger(), "Read %s once more", param_name.c_str());
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(param_name, param);
+        if (!got_param || rclcpp::PARAMETER_STRING != param.get_type()) 
+        {   
+            RCLCPP_WARN(node_logger->get_logger(), "Failed to read %s", param_name.c_str());
+            return false;
+        }
+        value = param.get_parameter_value().get<std::string>();
     }
 
-    value = param.get_parameter_value().get<std::string>();
     return true;
 }
 
@@ -76,26 +107,39 @@ inline bool getIntParam(
     int& value
 )
 {
-    rcl_interfaces::msg::ParameterDescriptor desc;
-    desc.name = param_name;
-    desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
-    desc.read_only = false;
-    desc.dynamic_typing = true;
-
-    node_params->declare_parameter(desc.name, rclcpp::ParameterValue(), desc);
-
-    rclcpp::Parameter param;
-    const bool got_param = node_params->get_parameter(desc.name, param);
-
-    if (!got_param) return false;
-    if (rclcpp::PARAMETER_INTEGER != param.get_type())
+    if (!node_params->has_parameter(param_name))
     {
-        RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
-        return false;
+        rcl_interfaces::msg::ParameterDescriptor desc;
+        desc.name = param_name;
+        desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_INTEGER;
+        desc.read_only = false;
+        desc.dynamic_typing = true;
+
+        node_params->declare_parameter(desc.name, rclcpp::ParameterValue(value), desc);
+
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(desc.name, param);
+
+        if (!got_param) return false;
+        if (rclcpp::PARAMETER_INTEGER != param.get_type())
+        {
+            RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
+            return false;
+        }
+
+        value = param.get_parameter_value().get<int>();
     }
-
-    value = param.get_parameter_value().get<int>();
-
+    else {
+        RCLCPP_INFO(node_logger->get_logger(), "Read %s once more", param_name.c_str());
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(param_name, param);
+        if (!got_param || rclcpp::PARAMETER_INTEGER != param.get_type()) 
+        {   
+            RCLCPP_WARN(node_logger->get_logger(), "Failed to read %s", param_name.c_str());
+            return false;
+        }
+        value = param.get_parameter_value().get<int>();
+    }
     return true;
 }
 
@@ -106,25 +150,38 @@ inline bool getDoubleParam(
     double& value
 )
 {
-    rcl_interfaces::msg::ParameterDescriptor desc;
-    desc.name = param_name;
-    desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
-    desc.read_only = false;
-    desc.dynamic_typing = true;
-
-    node_params->declare_parameter(desc.name, rclcpp::ParameterValue(), desc);
-
-    rclcpp::Parameter param;
-    const bool got_param = node_params->get_parameter(desc.name, param);
-
-    if (!got_param) return false;
-    if (rclcpp::PARAMETER_DOUBLE != param.get_type())
+    RCLCPP_INFO(node_logger->get_logger(), "Read %s", param_name.c_str());
+    if (!node_params->has_parameter(param_name))
     {
-        RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
-        return false;
-    }
+        rcl_interfaces::msg::ParameterDescriptor desc;
+        desc.name = param_name;
+        desc.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
+        desc.read_only = false;
+        desc.dynamic_typing = true;
+        node_params->declare_parameter(desc.name, rclcpp::ParameterValue(value), desc);
 
-    value = param.get_parameter_value().get<double>();
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(desc.name, param);
+
+        if (!got_param) return false;
+        if (rclcpp::PARAMETER_DOUBLE != param.get_type())
+        {
+            RCLCPP_FATAL(node_logger->get_logger(), "%s has wrong type", desc.name.c_str());
+            return false;
+        }
+        value = param.get_parameter_value().get<double>();
+    }
+    else {
+        RCLCPP_INFO(node_logger->get_logger(), "Read %s once more", param_name.c_str());
+        rclcpp::Parameter param;
+        const bool got_param = node_params->get_parameter(param_name, param);
+        if (!got_param || rclcpp::PARAMETER_DOUBLE != param.get_type()) 
+        {   
+            RCLCPP_WARN(node_logger->get_logger(), "Failed to read %s", param_name.c_str());
+            return false;
+        }
+        value = param.get_parameter_value().get<double>();
+    }
     return true;
 }
 
@@ -132,6 +189,7 @@ inline TsdfMap::Config getTsdfMapConfig(
     const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
     const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params) 
 {
+    RCLCPP_INFO(node_logger->get_logger(), "reading tsdf map config...");
     TsdfMap::Config tsdf_config;
     
     double voxel_size = tsdf_config.tsdf_voxel_size_;
@@ -150,6 +208,7 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
     const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
 )
 {
+    RCLCPP_INFO(node_logger->get_logger(), "reading tsdf integrator config..");
     TsdfIntegratorBase::Config integrator_config;
 
     integrator_config.voxel_carving_enabled_ = true;
@@ -319,6 +378,7 @@ inline MeshIntegratorConfig getMeshIntegratorConfig(
     const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
 )
 {
+    RCLCPP_INFO(node_logger->get_logger(), "reading mesh integrator config");
     MeshIntegratorConfig config;
 
     double min_weight = config.min_weight_;

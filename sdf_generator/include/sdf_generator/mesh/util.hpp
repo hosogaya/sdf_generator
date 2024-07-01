@@ -172,8 +172,7 @@ bool getSdfIfValid(
 
 template <>
 inline bool getSdfIfValid(
-    const TsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf
-)
+    const TsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
 {
     if (voxel.weight_ <= min_weight) return false;
     sdf = voxel.distance_;
@@ -182,11 +181,9 @@ inline bool getSdfIfValid(
 
 template <>
 inline bool getSdfIfValid(
-    const EsdfVoxel& voxel, const Scalar /*min_weight*/,
-    Scalar& sdf) {
-  if (!voxel.observed_) {
-    return false;
-  }
+    const EsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
+{
+  if (!voxel.observed_) return false;
   sdf = voxel.distance_;
   return true;
 }
@@ -197,7 +194,7 @@ bool getColorIfValid(
 
 template <>
 inline bool getColorIfValid(
-    const TsdfVoxel& voxel, const Scalar min_weight, Color& color) 
+    const TsdfVoxel& voxel, const Scalar min_weight, Color& color)
 {
     if (voxel.weight_ <= min_weight) {
         return false;
@@ -208,7 +205,7 @@ inline bool getColorIfValid(
 
 template <>
 inline bool getColorIfValid(
-    const EsdfVoxel& voxel, const Scalar /*min_weight*/, Color& color) 
+    const EsdfVoxel& voxel, const Scalar min_weight, Color& color)
 {
     if (!voxel.observed_) {
         return false;

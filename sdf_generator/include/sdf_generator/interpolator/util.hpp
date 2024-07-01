@@ -6,19 +6,12 @@
 namespace sdf_generator
 {
 template <typename VoxelType>
-bool isObservedVoxel(const VoxelType&) {return false;}
+bool isObservedVoxel(const VoxelType&);
 
 template <>
-bool isObservedVoxel(const TsdfVoxel& voxel)
-{
-    return voxel.weight_ > kWeightEpsilon;
-}
-
+bool isObservedVoxel(const TsdfVoxel& voxel);
 template <>
-bool isObservedVoxel(const EsdfVoxel& voxel)
-{
-    return voxel.observed_;
-}
+bool isObservedVoxel(const EsdfVoxel& voxel);
 
 // template <typename VoxelType>
 // inline Scalar getVoxelSdf(const VoxelType& voxel);

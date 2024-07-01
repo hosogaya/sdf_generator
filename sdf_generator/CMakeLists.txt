@@ -17,9 +17,11 @@ set (sources
     src/integrator/simple_tsdf_integrator.cpp
     src/integrator/thread_safe_index.cpp
     src/integrator/tsdf_integrator.cpp
-    src/interpolator/interpolator.cpp
+    src/interpolator/util.cpp
     src/point_cloud/point_cloud_processor.cpp
     src/point_cloud/lidar_processor.cpp
+    src/mesh/marching_cubes.cpp
+    # src/mesh/util.cpp
 )
 
 add_library(${PROJECT_NAME} SHARED ${sources})

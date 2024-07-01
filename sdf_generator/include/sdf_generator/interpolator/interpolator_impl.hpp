@@ -1,4 +1,3 @@
-#include <sdf_generator/interpolator/interpolator.hpp>
 #include <sdf_generator/interpolator/util.hpp>
 
 namespace sdf_generator
@@ -93,7 +92,7 @@ bool Interpolator<VoxelType>::getInterpWeight(const Point& pos, Scalar& weight) 
     InterpVector q_vector;
     if (!getVoxelsAndQVector(pos, voxels, q_vector)) return false;
 
-    weight = interpMember(q_vector, voxels, &getWeight);
+    weight = interpMember(q_vector, voxels, &getVoxelWeight);
 
     return true;
 }
@@ -113,10 +112,10 @@ bool Interpolator<VoxelType>::getInterpVoxel(const Point& pos, VoxelType& voxel)
 template <typename VoxelType>
 bool Interpolator<VoxelType>::getNearestDistance(const Point& pos, Scalar& distance) const
 {
-    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockPtr(pos);
+    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockConstPtr(pos);
     if (block_ptr == nullptr) return false;
 
-    const VoxelType& voxel = block_ptr->getVoxel(pos);
+    const VoxelType& voxel = block_ptr->getConstVoxel(pos);
 
     distance = getVoxelDistance(voxel);
 
@@ -126,10 +125,10 @@ bool Interpolator<VoxelType>::getNearestDistance(const Point& pos, Scalar& dista
 template <typename VoxelType>
 bool Interpolator<VoxelType>::getNearestWeight(const Point& pos, Scalar& weight) const
 {
-    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockPtr(pos);
+    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockConstPtr(pos);
     if (block_ptr == nullptr) return false;
 
-    const VoxelType& voxel = block_ptr->getVoxel(pos);
+    const VoxelType& voxel = block_ptr->getConstVoxel(pos);
 
     weight = getVoxelWeight(voxel);
 
@@ -139,7 +138,7 @@ bool Interpolator<VoxelType>::getNearestWeight(const Point& pos, Scalar& weight)
 template <typename VoxelType>
 bool Interpolator<VoxelType>::getNearestVoxel(const Point& pos, VoxelType& voxel) const
 {
-    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockPtr(pos);
+    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockConstPtr(pos);
     if (block_ptr == nullptr) return false;
 
     voxel = block_ptr->getVoxel(pos);
@@ -153,7 +152,7 @@ bool Interpolator<VoxelType>::setIndexes(const Point& pos, BlockIndex& block_ind
 {
     block_index = layer_->getBlockIndex(pos);
 
-    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockPtr(block_index);
+    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockConstPtr(block_index);
     if (block_ptr == nullptr) return false;
 
     VoxelIndex voxel_index = block_ptr->calVoxelIndex(pos);
@@ -172,7 +171,7 @@ bool Interpolator<VoxelType>::setIndexes(const Point& pos, BlockIndex& block_ind
             if (voxel_index(i) < 0)
             {
                 --block_index(i);
-                voxel_index(i) += block_ptr->voxelPerSide();
+                voxel_index(i) += block_ptr->voxelsPerSide();
             }
         }
     }
@@ -198,7 +197,7 @@ bool Interpolator<VoxelType>::getVoxelsAndQVector(
 {
     for (int i=0; i<voxel_indexes.cols(); ++i)
     {
-        typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockPtr(block_index);
+        typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockConstPtr(block_index);
         if (block_ptr == nullptr) return false;
 
         VoxelIndex voxel_index = voxel_indexes.col(i);
@@ -219,9 +218,9 @@ bool Interpolator<VoxelType>::getVoxelsAndQVector(
         }
 
         // use bottom left corner voxel to compute weights vector
-        if (i == 0) getQVector(block_ptr->calCoordinate(voxel_index), pos, block_ptr->voxelSizeInv(), q_vector);
+        if (i == 0) getQVector(block_ptr->calCoordinate(voxel_index), pos, block_ptr->voxelSizeInv(), &q_vector);
     
-        const VoxelType& voxel = block_ptr->getVoxel(voxel_index);
+        const VoxelType& voxel = block_ptr->getConstVoxel(voxel_index);
 
         voxels[i] = & voxel;
         if (isObservedVoxel(voxel))
@@ -266,7 +265,7 @@ template <typename Getter_t>
 inline Scalar Interpolator<VoxelType>::interpMember(const InterpVector& q_vector, const VoxelType** voxels, Getter_t (*getter)(const VoxelType&))
 {
     InterpVector data;
-    for (int i=0; i<data.size(); +i)
+    for (int i=0; i<data.size(); ++i)
     {
         data[i] = static_cast<Scalar>((*getter)(*voxels[i]));
     }

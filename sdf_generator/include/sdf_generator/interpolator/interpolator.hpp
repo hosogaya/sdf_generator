@@ -59,3 +59,5 @@ private:
     const typename Layer<VoxelType>::Ptr layer_;
 };
 }
+
+#include <sdf_generator/interpolator/interpolator_impl.hpp>

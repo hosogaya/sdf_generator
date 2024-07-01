@@ -15,6 +15,7 @@ def read_yaml(file_path: str):
 
 def launch_setup(context, *args, **kwargs):
     param = read_yaml(LaunchConfiguration("param_file_path").perform(context))
+    remap = read_yaml(LaunchConfiguration("remap_file_path").perform(context))
 
     load_composable_nodes = LoadComposableNodes(
         target_container=LaunchConfiguration("container_name"),
@@ -25,6 +26,11 @@ def launch_setup(context, *args, **kwargs):
                 name="tsdf_server",
                 extra_arguments=[{"use_intra_process_comms": True}],
                 parameters=[param],
+                remappings=[
+                    ("input/point_cloud", remap["input"]["point_cloud"]),
+                    ("output/layer", remap["output"]["layer"]),
+                    ("output/mesh", remap["output"]["mesh"])
+                ]
             ),
         ],
     )
@@ -41,7 +47,15 @@ def generate_launch_description():
         "param_file_path", default_value=TextSubstitution(
             text=os.path.join(
                 get_package_share_directory("sdf_generator_ros"), 
-                'config', 'tsdf_map.param.yaml'
+                'config', 'tsdf_server.param.yaml'
+            )
+        )
+    )
+    arg_remap_file_path = DeclareLaunchArgument(
+        "remap_file_path", default_value=TextSubstitution(
+            text=os.path.join(
+                get_package_share_directory("sdf_generator_ros"),
+                'config', 'remapping.yaml'
             )
         )
     )
@@ -49,5 +63,6 @@ def generate_launch_description():
     return LaunchDescription([
         arg_container_name,
         arg_param_file_path,
+        arg_remap_file_path,
         OpaqueFunction(function=launch_setup)
     ])

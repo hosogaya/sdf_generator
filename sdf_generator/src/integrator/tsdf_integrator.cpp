@@ -72,9 +72,6 @@ TsdfVoxel* TsdfIntegratorBase::allocateStorageAndGetVoxelPtr(const GlobalIndex& 
 
 void TsdfIntegratorBase::updateLayerWithStoredBlocks() 
 {
-    BlockIndex last_block_index;
-    Block<TsdfVoxel>::Ptr block = nullptr;
-
     for (const std::pair<const BlockIndex, Block<TsdfVoxel>::Ptr>& block_pair: temp_block_map_)
     {
         layer_->insertBlock(block_pair);

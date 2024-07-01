@@ -51,6 +51,8 @@ public:
     : MeshIntegrator(config, &sdf_layer, mesh_layer)
     {}
 
+    virtual ~MeshIntegrator() {}
+
     void initFromSdfLayer(const Layer<VoxelType>& sdf_layer)
     {
         voxel_size_ = sdf_layer.voxelSize();
@@ -115,7 +117,7 @@ public:
 
         // This block should already exist, otherwise it makes no sense to update
         // the mesh for it. ;)
-        typename Block<VoxelType>::ConstPtr block = sdf_layer_const_->getBlockPtr(block_index);
+        typename Block<VoxelType>::ConstPtr block = sdf_layer_const_->getBlockConstPtr(block_index);
 
         if (!block) return;
 
@@ -237,7 +239,8 @@ public:
             VoxelIndex corner_index = index + cube_index_offsets_.col(i);
             if (block.isValidVoxelIndex(corner_index))
             {
-                if (!getSdfIfValid(voxel_size_, config_.min_weight_, (corner_sdf(i))))
+                const VoxelType& voxel = block.getConstVoxel(corner_index);
+                if (!getSdfIfValid(voxel, config_.min_weight_, corner_sdf(i)))
                 {
                     all_neighbors_observed = false;
                     break;
@@ -266,7 +269,7 @@ public:
                 BlockIndex neighbor_index = block.blockIndex() + block_offset;
                 if (sdf_layer_const_->hasBlock(neighbor_index))
                 {
-                    typename Block<VoxelType>::ConstPtr neighbor_block = sdf_layer_const_->getBlockPtr(neighbor_index);
+                    typename Block<VoxelType>::ConstPtr neighbor_block = sdf_layer_const_->getBlockConstPtr(neighbor_index);
                     const VoxelType& voxel = neighbor_block->getConstVoxel(corner_index);
 
                     if (!getSdfIfValid(voxel, config_.min_weight_, corner_sdf(i)))
@@ -306,7 +309,7 @@ public:
             }
             else
             {
-                const typename Block<VoxelType>::ConstPtr neighbor_block = sdf_layer_const_->getBlockPtr(vertex);
+                const typename Block<VoxelType>::ConstPtr neighbor_block = sdf_layer_const_->getBlockConstPtr(vertex);
                 const VoxelType& voxel = neighbor_block->getConstVoxel(vertex);
                 getColorIfValid(voxel, config_.min_weight_, mesh->colors_[i]);
             }

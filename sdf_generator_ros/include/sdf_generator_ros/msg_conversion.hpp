@@ -16,6 +16,7 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
     int voxels_num = layer->voxelsPerSide()*layer->voxelsPerSide()*layer->voxelsPerSide();
     msg->voxel_size = layer->voxelSize();
     msg->voxels_per_side = layer->voxelsPerSide();
+    msg->blocks.reserve(indexes.size());
 
     for (const auto& index: indexes)
     {
@@ -46,6 +47,7 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
             }
             block_msg.voxels.push_back(voxel_msg);
         }
+        msg->blocks.push_back(block_msg);
     }
     return msg;
 }

@@ -7,9 +7,9 @@ ThreadSafeIndex::ThreadSafeIndex(size_t number_of_points)
 {}
 
 bool ThreadSafeIndex::getNextIndex(size_t& idx) {
-	size_t sequential_idx = atomic_idx_.fetch_add(1);
-
-	if (sequential_idx >= number_of_points_) {
+    size_t sequential_idx = atomic_idx_.fetch_add(1);
+	
+    if (sequential_idx >= number_of_points_) {
 		return false;
 	} else {
 		idx = getNextIndexImpl(sequential_idx);
@@ -19,6 +19,15 @@ bool ThreadSafeIndex::getNextIndex(size_t& idx) {
 
 void ThreadSafeIndex::reset() {
   	atomic_idx_.store(0);
+}
+
+// simple thread safe index
+SimpleThreadSafeIndex::SimpleThreadSafeIndex(size_t number_of_points)
+: ThreadSafeIndex(number_of_points) {}
+
+size_t SimpleThreadSafeIndex::getNextIndexImpl(size_t base_idx)
+{
+    return base_idx;
 }
 
 // mixed thread safe index
@@ -63,7 +72,9 @@ size_t SortedThreadSafeIndex::getNextIndexImpl(size_t sequential_idx) {
 
 ThreadSafeIndex* ThreadSafeIndexFactory::get(const std::string& mode, const PointArray& points_c)
 {
-  	if (mode == "mixed")
+    if (mode == "simple")
+        return new SimpleThreadSafeIndex(points_c.size());
+  	else if (mode == "mixed")
 		return new MixedThreadSafeIndex(points_c.size());
 	else if (mode == "sorted")
 		return new SortedThreadSafeIndex(points_c);

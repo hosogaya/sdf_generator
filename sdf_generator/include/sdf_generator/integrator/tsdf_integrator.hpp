@@ -49,7 +49,7 @@ public:
 
         size_t integrator_threads_ = std::thread::hardware_concurrency();
 
-        std::string integration_order_mode_ = "mixed";
+        std::string integration_order_mode_ = "simple";
         bool merge_with_clear_ = true;
         bool enable_anti_grazing_ = false;
     

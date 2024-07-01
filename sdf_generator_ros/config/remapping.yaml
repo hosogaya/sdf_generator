@@ -1,0 +1,7 @@
+tsdf_server:
+  ros__parameters:
+    input:
+      point_cloud: "unilidar/cloud"
+    output:
+      layer: "tsdf_layer"
+      mesh: "tsdf_mesh"

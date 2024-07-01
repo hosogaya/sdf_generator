@@ -3,23 +3,13 @@
 namespace sdf_generator
 {
 TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
-: TsdfServer(options, 
-    getTsdfMapConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()), 
-    getTsdfIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()),
-    getMeshIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface()))
-{}
-
-TsdfServer::TsdfServer(const rclcpp::NodeOptions options, 
-            const TsdfMap::Config& map_config,
-            const TsdfIntegratorBase::Config& integrator_config, 
-            const MeshIntegratorConfig& mesh_integrator_config)
 : rclcpp::Node("tsdf_server", options)
 {
     /**
      * Publisher and Subscriber
     */
     pub_layer_ = create_publisher<sdf_msgs::msg::Layer>(
-        "ouput/layer", 1
+        "output/layer", 1
     );
     pub_mesh_ = create_publisher<sdf_msgs::msg::Mesh>(
         "output/mesh", 1
@@ -31,6 +21,9 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
     /**
      * Parameters
     */
+    auto map_config = getTsdfMapConfig(this->get_node_logging_interface(), this->get_node_parameters_interface());
+    auto integrator_config = getTsdfIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface());
+    auto mesh_integrator_config = getMeshIntegratorConfig(this->get_node_logging_interface(), this->get_node_parameters_interface());
     world_frame_ = declare_parameter("world_frame", "map");
     sensor_frame_ = declare_parameter("sensor_frame", "sensor_frame");
     std::string color_map_method = declare_parameter("color_map_method", "rainbow");
@@ -50,6 +43,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
         RCLCPP_ERROR(get_logger(), "Please set specific integration method");
         rclcpp::shutdown();
     }
+
+    RCLCPP_INFO(get_logger(), "Built tsdf map and integrator");
     
     // color map
     if (color_map_method == "rainbow")
@@ -61,6 +56,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
         RCLCPP_ERROR(get_logger(), "Please set specific color map method");
         rclcpp::shutdown();
     }
+
+    RCLCPP_INFO(get_logger(), "Built color map");
 
     // point cloud processor
     if (sensor_type == "lidar")
@@ -76,12 +73,16 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
         rclcpp::shutdown();
     }
 
+    RCLCPP_INFO(get_logger(), "built point cloud processor");
+
     // mesh 
     mesh_color_mode_ = getColorMode(mesh_color_mode_string);
     mesh_layer_.reset(new MeshLayer(tsdf_map_->blockSize()));
     mesh_integrator_.reset(new MeshIntegrator<TsdfVoxel>(
         mesh_integrator_config, tsdf_map_->getTsdfLayerPtr().get(), mesh_layer_.get()
     ));
+
+    RCLCPP_INFO(get_logger(), "built mesh integrator");
 
     // tf
     tf_buffer_.reset(new tf2_ros::Buffer(get_clock()));
@@ -90,16 +91,21 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options,
     // timer
     auto mesh_dt = std::chrono::microseconds(int(1e6)/mesh_publish_hz);
     mesh_timer_ = create_wall_timer(mesh_dt, std::bind(&TsdfServer::meshTimerCallback, this));
+
+    RCLCPP_INFO(get_logger(), "Construction finished");
 }
 
 TsdfServer::~TsdfServer() {}
 
 void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniquePtr msg)
 {
+    RCLCPP_INFO(get_logger(), "point cloud callback is called");
     rclcpp::Time sub_time(msg->header.stamp);
 
     TransformMatrix<Scalar> tf_global2current;
     if (!getTransform(world_frame_, sensor_frame_, sub_time, tf_global2current)) return;
+
+    RCLCPP_INFO(get_logger(), "get transform from %s to %s", world_frame_.c_str(), sensor_frame_.c_str());
 
     bool has_color(false);
     bool has_intensity(false);
@@ -138,15 +144,22 @@ void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniqueP
         convertPointCloud(*point_cloud, color_map_, points_c, colors);
     }
 
+    RCLCPP_INFO(get_logger(), "extracted point and colors");
+
     point_cloud_processor_->process(points_c, colors, normals_c);
+
+    RCLCPP_INFO(get_logger(), "extracted normals");
 
     // icp
 
     // integrating
     tsdf_integrator_->integratePointArray(tf_global2current, points_c, normals_c, colors, false);
+    RCLCPP_INFO(get_logger(), "integrated point cloud to tsdf map");
 
     // publish
     sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
+    RCLCPP_INFO(get_logger(), "created layer msg");
+    RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
     pub_layer_->publish(std::move(layer_msg));
 }
 

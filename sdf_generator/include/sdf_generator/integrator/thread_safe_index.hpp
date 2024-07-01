@@ -37,6 +37,15 @@ protected:
     const size_t number_of_points_;
 };
 
+class SimpleThreadSafeIndex: public ThreadSafeIndex
+{
+public:
+    explicit SimpleThreadSafeIndex(size_t number_of_points);
+
+protected:
+    size_t getNextIndexImpl(size_t base_idx) override;
+};
+
 
 /*
  * The class attempts to ensure that the points are read in an order that gives

@@ -62,6 +62,23 @@ install(
   RUNTIME DESTINATION bin
 )
 
+add_executable(tsdf_server_node 
+  src/tsdf_server.cpp
+  src/tsdf_server_node.cpp
+)
+
+ament_target_dependencies(tsdf_server_node ${dependencies})
+target_include_directories(tsdf_server_node
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>"
+)
+
+install(
+  TARGETS tsdf_server_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(
   DIRECTORY include/
   DESTINATION include

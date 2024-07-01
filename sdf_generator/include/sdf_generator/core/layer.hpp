@@ -27,7 +27,7 @@ public:
     }
     virtual ~Layer() {}
 
-    inline typename BlockType::ConstPtr getBlockPtr(const BlockIndex& index) const
+    inline typename BlockType::ConstPtr getBlockConstPtr(const BlockIndex& index) const
     {
         typename BlockHashMap::const_iterator itr = block_map_.find(index);
         if (itr != block_map_.end())
@@ -36,7 +36,7 @@ public:
         }
         else
         {
-            return typename BlockType::Ptr();
+            return typename BlockType::ConstPtr();
         }
     }
 
@@ -59,7 +59,12 @@ public:
     }
 
 
-    inline typename BlockType::ConstPtr getBlockPtr(const Point& coords) const
+    inline typename BlockType::ConstPtr getBlockConstPtr(const Point& coords) const
+    {
+        return getBlockConstPtr(getBlockIndex(coords));
+    }
+
+    inline typename BlockType::Ptr getBlockPtr(const Point& coords) 
     {
         return getBlockPtr(getBlockIndex(coords));
     }
@@ -93,6 +98,8 @@ public:
     {
         return block_map_.count(block_index) > 0;
     }
+
+    size_t blockNum() const {return block_map_.size();}
 
     // getter
     Scalar blockSize() const {return block_size_;}

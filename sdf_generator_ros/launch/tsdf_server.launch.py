@@ -17,6 +17,7 @@ def launch_setup(context, *args, **kwargs):
         executable="component_container",
         namespace="", 
         emulate_tty=True, # needed for display of logs
+        output='screen'
     )
     
     tsdf_server = IncludeLaunchDescription(
@@ -24,6 +25,7 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={
             "container_name": TextSubstitution(text=container_name), 
             "param_file_path": TextSubstitution(text=os.path.join(get_package_share_directory("sdf_generator_ros"), 'config/tsdf_server.param.yaml')), 
+            "remap_file_path": TextSubstitution(text=os.path.join(get_package_share_directory("sdf_generator_ros"), 'config', 'remapping.yaml'))
         }.items()
     )
     

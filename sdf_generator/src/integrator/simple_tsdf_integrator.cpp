@@ -23,6 +23,7 @@ void SimpleTsdfIntegrator::integratePointArray(
     for (auto& thread: integration_threads) thread.join();
 
     updateLayerWithStoredBlocks();
+    std::cout << "[integratePointArray] updated layer with stored blocks. Num. of block: " << layer_->blockNum() << std::endl;
 }
 
 void SimpleTsdfIntegrator::integrateFunction(
@@ -43,6 +44,7 @@ void SimpleTsdfIntegrator::integrateFunction(
         const Point& origin = tf_global2current.translation();
         const Point point_g = tf_global2current*point_c;
         const Vector3 normal_g = tf_global2current.rotation()*normal_c;
+
 
         // ray caster
         RayCaster ray_caster(

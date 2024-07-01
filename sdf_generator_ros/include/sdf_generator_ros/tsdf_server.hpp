@@ -35,11 +35,9 @@ class TsdfServer : public rclcpp::Node
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    TsdfServer(const rclcpp::NodeOptions options);
-    TsdfServer(const rclcpp::NodeOptions options, 
-            const TsdfMap::Config& map_config,
-            const TsdfIntegratorBase::Config& integrator_config,
-            const MeshIntegratorConfig& mesh_integrator_config);
+    TsdfServer(const rclcpp::NodeOptions options 
+            = rclcpp::NodeOptions().use_intra_process_comms(true));
+            // ,const MeshIntegratorConfig mesh_integrator_config);
 
     ~TsdfServer();
 
