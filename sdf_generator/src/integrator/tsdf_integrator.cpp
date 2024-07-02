@@ -137,6 +137,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
         distance *= normal_ratio;
     }
 
+    // point hehind boundary is not updated. 
     if (distance < -config_.default_truncation_distance_) 
     {
         std::cout << "[updateTsdfVoxel] the distance is too small: " << distance << std::endl;

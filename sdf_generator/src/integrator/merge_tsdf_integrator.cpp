@@ -202,17 +202,17 @@ void MergeTsdfIntegrator::integrateVoxel(
                 continue;
             }
         }
-    }
 
-    Block<TsdfVoxel>::Ptr block = nullptr;
-    BlockIndex block_index;
-    TsdfVoxel* voxel = allocateStorageAndGetVoxelPtr(global_voxel_index, block, block_index);
+        Block<TsdfVoxel>::Ptr block = nullptr;
+        BlockIndex block_index;
+        TsdfVoxel* voxel = allocateStorageAndGetVoxelPtr(global_voxel_index, block, block_index);
 
-    updateTsdfVoxel(
-        tf_global2current, origin, merged_point_c, merged_point_g, 
-        merged_normal_c, merged_normal_g, global_voxel_index, 
-        merged_color, merged_weight, *voxel
+        updateTsdfVoxel(
+            tf_global2current, origin, merged_point_c, merged_point_g, 
+            merged_normal_c, merged_normal_g, global_voxel_index, 
+            merged_color, merged_weight, *voxel
     );
+    }
 }
 
 }
