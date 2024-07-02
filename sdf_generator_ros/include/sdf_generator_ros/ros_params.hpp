@@ -197,7 +197,7 @@ inline TsdfMap::Config getTsdfMapConfig(
     rcl_interfaces::msg::ParameterDescriptor desc_voxel_size;
     if (getDoubleParam("tsdf_voxel_size", node_logger, node_params, voxel_size)) 
         tsdf_config.tsdf_voxel_size_ = voxel_size;
-    if (getIntParam("tsdf_voxesl_per_side", node_logger, node_params, voxels_per_side)) 
+    if (getIntParam("tsdf_voxels_per_side", node_logger, node_params, voxels_per_side)) 
         tsdf_config.tsdf_voxels_per_side_ = voxels_per_side;
 
     return tsdf_config;

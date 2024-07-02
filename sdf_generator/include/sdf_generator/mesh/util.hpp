@@ -174,7 +174,11 @@ template <>
 inline bool getSdfIfValid(
     const TsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
 {
-    if (voxel.weight_ <= min_weight) return false;
+    if (voxel.weight_ <= min_weight) 
+    {
+        std::cout << "[getSdfIfValid] the weight " << voxel.weight_ << " is smaller than " << min_weight << std::endl;
+        return false;
+    }
     sdf = voxel.distance_;
     return true;
 }

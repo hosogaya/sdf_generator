@@ -68,7 +68,7 @@ install(TARGETS
 )
 
 install(
-  DIRECTORY content
+  DIRECTORY materials
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -15,6 +15,18 @@ struct TsdfVoxel
     bool isBehind() const {return distance_ < 0.0;}
 };
 
+inline std::ostream& operator<<(std::ostream& os, const TsdfVoxel& voxel)
+{
+    os << "distance: " << voxel.distance_ << ", "
+       << "weight: " << voxel.weight_ << ", "
+       << "gradient: " << voxel.gradient_.transpose() << ", "
+       << "color: " << voxel.color_ << ", "
+       << "occupied: " << voxel.occupied_ << ", "
+       << "is behind: " << voxel.isBehind();
+
+    return os;
+}
+
 
 #define INF FLT_MAX
 #define UNDEF INT_MAX

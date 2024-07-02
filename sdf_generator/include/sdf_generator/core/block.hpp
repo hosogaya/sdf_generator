@@ -118,6 +118,7 @@ public:
 
     void setOrigin(const Point& new_origin){origin_ = new_origin;}
     Scalar blockSize() const {return block_size_;}
+    Scalar blockSizeInv() const {return block_size_inv_;}
     bool hasData() const {return has_data_;}
 
 

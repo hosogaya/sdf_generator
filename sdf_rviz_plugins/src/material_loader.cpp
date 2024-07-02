@@ -10,14 +10,13 @@ void MaterialLoader::loadMaterials() {
     return;
   }
   std::string path = ament_index_cpp::get_package_share_directory("sdf_rviz_plugins")
-                    + "/content/materials";
+                    + "/materials";
 
   std::cout << "material path: " << path << std::endl; 
 
-  // first instance loads a custom ogre material that supports transparent
-  // colors.
-  Ogre::ResourceGroupManager::getSingletonPtr()->createResourceGroup(
-      "SdfMaterials");
+  // first instance loads a custom ogre material that supports transparent colors.
+  // Ogre::ResourceGroupManager::getSingletonPtr()->createResourceGroup(
+  //     "SdfMaterials");
   Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
       path, "FileSystem", "SdfMaterials", true);
   Ogre::ResourceGroupManager::getSingletonPtr()->initialiseResourceGroup(

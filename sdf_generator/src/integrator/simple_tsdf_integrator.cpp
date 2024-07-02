@@ -10,7 +10,7 @@ void SimpleTsdfIntegrator::integratePointArray(
     std::unique_ptr<ThreadSafeIndex> index_getter(
         ThreadSafeIndexFactory::get(config_.integration_order_mode_, points_c)
     );
-
+    
     std::vector<std::thread> integration_threads;
     for (size_t i=0; i<config_.integrator_threads_; ++i)
     {
@@ -23,7 +23,7 @@ void SimpleTsdfIntegrator::integratePointArray(
     for (auto& thread: integration_threads) thread.join();
 
     updateLayerWithStoredBlocks();
-    std::cout << "[integratePointArray] updated layer with stored blocks. Num. of block: " << layer_->blockNum() << std::endl;
+    // std::cout << "[integratePointArray] updated layer with stored blocks. Num. of block: " << layer_->blockNum() << std::endl;
 }
 
 void SimpleTsdfIntegrator::integrateFunction(
@@ -38,6 +38,10 @@ void SimpleTsdfIntegrator::integrateFunction(
         const Vector3& normal_c = normals_c[point_index];
         const Color& color = colors[point_index];
 
+        // std::cout << "[integrationFunciton] point_c: " << point_c.transpose() << std::endl;
+        // std::cout << "[integrationFunciton] normal_c: " << normal_c.transpose() << std::endl;
+        // std::cout << "[integrationFunciton] color: " << color << std::endl;
+
         bool is_clearing;
         if (!isPointValid(point_c, freespace_points, is_clearing)) continue;
 
@@ -45,6 +49,9 @@ void SimpleTsdfIntegrator::integrateFunction(
         const Point point_g = tf_global2current*point_c;
         const Vector3 normal_g = tf_global2current.rotation()*normal_c;
 
+        // std::cout << "[integrationFunciton] point_g: " << point_g.transpose() << std::endl;
+        // std::cout << "[integrationFunciton] normal_g: " << normal_g.transpose() << std::endl;
+        // std::cout << "[integrationFunciton] origin: " << origin.transpose() << std::endl;
 
         // ray caster
         RayCaster ray_caster(
@@ -59,12 +66,14 @@ void SimpleTsdfIntegrator::integrateFunction(
         GlobalIndex global_voxel_index;
         while (ray_caster.nextRayIndex(global_voxel_index))
         {
+            // std::cout << "[integrationFunction] global voxel index: " << global_voxel_index.transpose() << std::endl;
             TsdfVoxel* voxel = allocateStorageAndGetVoxelPtr(global_voxel_index, block, block_index);
             updateTsdfVoxel(
                 tf_global2current, origin, point_c, point_g, 
                 normal_c, normal_g, global_voxel_index, color, 0.0f,
                 *voxel
             );
+            // std::cout << "[integrationFunction] voxel: " << *voxel << std::endl;
         }
     }
 }

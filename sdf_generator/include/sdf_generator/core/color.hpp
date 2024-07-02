@@ -37,7 +37,6 @@ struct Color
         return res;
     }
 
-
     // color samples
     static const Color white()
     {
@@ -149,6 +148,17 @@ struct Color
         return color;
     }
 };
+
+inline std::ostream& operator<<(std::ostream& os, const Color& color)
+{
+    os << static_cast<unsigned int>(color.r_) << ", "
+       << static_cast<unsigned int>(color.g_) << ", "
+       << static_cast<unsigned int>(color.b_) << ", "
+       << static_cast<unsigned int>(color.a_);
+
+    return os;
+}
+
     
 using ColorArray = AlignedVector<Color>;
 

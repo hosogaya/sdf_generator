@@ -93,19 +93,64 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     mesh_timer_ = create_wall_timer(mesh_dt, std::bind(&TsdfServer::meshTimerCallback, this));
 
     RCLCPP_INFO(get_logger(), "Construction finished");
+
+
+    // test
+    // PointArray points_c_temp;
+    // points_c_temp.push_back(Point( 1.0, 0.0, 0.0));
+    // points_c_temp.push_back(Point(-1.0, 0.0, 0.0));
+    // points_c_temp.push_back(Point( 0.0, 1.0, 0.0));
+    // points_c_temp.push_back(Point( 0.0,-1.0, 0.0));
+    // points_c_temp.push_back(Point( 0.0, 0.0, 1.0));
+    // points_c_temp.push_back(Point( 0.0, 0.0,-1.0));
+
+    // ColorArray colors_temp;
+    // colors_temp.push_back(Color::Red());
+    // colors_temp.push_back(Color::Blue());
+    // colors_temp.push_back(Color::Green());
+    // colors_temp.push_back(Color::Orange());
+    // colors_temp.push_back(Color::Black());
+    // colors_temp.push_back(Color::white());
+
+    // Vector3Array normals_temp;
+    // normals_temp.push_back(Vector3(-1.0, 0.0, 0.0));
+    // normals_temp.push_back(Vector3( 1.0, 0.0, 0.0));
+    // normals_temp.push_back(Vector3( 0.0,-1.0, 0.0));
+    // normals_temp.push_back(Vector3( 0.0, 1.0, 0.0));
+    // normals_temp.push_back(Vector3( 0.0, 0.0,-1.0));
+    // normals_temp.push_back(Vector3( 0.0, 0.0, 1.0));  
+
+    // tsdf_integrator_->integratePointArray(TransformMatrix<Scalar>(), points_c_temp, normals_temp, colors_temp, false);
+
+    // BlockIndexList block_indices;
+    // tsdf_map_->getTsdfLayerConstPtr()->getAllAllocatedBlocks(block_indices);
+    // for (const auto& block_index: block_indices)
+    // {
+    //     auto block_ptr = tsdf_map_->getTsdfLayerConstPtr()->getBlockConstPtr(block_index);
+    //     std::cout << "block size: " << block_ptr->blockSize() << std::endl;
+    //     std::cout << "block size_inv: " << block_ptr->blockSizeInv() << std::endl;
+    //     std::cout << "voxel size: " << block_ptr->voxelSize() << std::endl;
+    //     std::cout << "voxel size inv: " << block_ptr->voxelSizeInv() << std::endl;
+    //     std::cout << "voxels per side: " << block_ptr->voxelsPerSide() << std::endl;
+    //     std::cout << "num voxels: " << block_ptr->numVoxels() << std::endl;
+    //     std::cout << "origin: " << block_ptr->origin().transpose() << std::endl;
+    //     std::cout << "has data: " << block_ptr->hasData() << std::endl;
+    // }
+
+    // publish
+    // sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
+    // RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
+    // pub_layer_->publish(std::move(layer_msg));
 }
 
 TsdfServer::~TsdfServer() {}
 
 void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniquePtr msg)
 {
-    RCLCPP_INFO(get_logger(), "point cloud callback is called");
     rclcpp::Time sub_time(msg->header.stamp);
 
     TransformMatrix<Scalar> tf_global2current;
     if (!getTransform(world_frame_, sensor_frame_, sub_time, tf_global2current)) return;
-
-    RCLCPP_INFO(get_logger(), "get transform from %s to %s", world_frame_.c_str(), sensor_frame_.c_str());
 
     bool has_color(false);
     bool has_intensity(false);
@@ -143,22 +188,15 @@ void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniqueP
         pcl::fromROSMsg(*msg, *point_cloud);
         convertPointCloud(*point_cloud, color_map_, points_c, colors);
     }
-
-    RCLCPP_INFO(get_logger(), "extracted point and colors");
-
     point_cloud_processor_->process(points_c, colors, normals_c);
-
-    RCLCPP_INFO(get_logger(), "extracted normals");
 
     // icp
 
     // integrating
     tsdf_integrator_->integratePointArray(tf_global2current, points_c, normals_c, colors, false);
-    RCLCPP_INFO(get_logger(), "integrated point cloud to tsdf map");
 
     // publish
     sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
-    RCLCPP_INFO(get_logger(), "created layer msg");
     RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
     pub_layer_->publish(std::move(layer_msg));
 }
@@ -200,12 +238,14 @@ void TsdfServer::meshTimerCallback()
 
     // integrate mesh
     mesh_integrator_->generateMesh(only_mesh_updated_blocks, clear_updated_flag);
+    RCLCPP_INFO(get_logger(), "generated mesh");
 
     // generate mesh msg
     sdf_msgs::msg::Mesh::UniquePtr mesh_msg(new sdf_msgs::msg::Mesh);
     generateMeshMsg(mesh_layer_.get(), mesh_color_mode_, mesh_msg.get());    
     mesh_msg->header.frame_id = world_frame_;
     mesh_msg->header.stamp = now();
+    RCLCPP_INFO(get_logger(), "generated mesh msg");
 
     // pulish
     pub_mesh_->publish(std::move(mesh_msg));

@@ -187,6 +187,8 @@ inline void generateMeshMsg(
     BlockIndexList mesh_indices;
     mesh_layer->getAllUpdatedMeshes(&mesh_indices);
 
+    std::cout << "[generateMeshMsg] Mesh index size: " << mesh_indices.size() << std::endl;
+
     mesh_msg->block_edge_length = mesh_layer->blockSize();
     mesh_msg->mesh_blocks.reserve(mesh_indices.size());
 
@@ -223,8 +225,11 @@ inline void generateMeshMsg(
             
             const Point normalized_vertex = 0.5f*(mesh_layer->blockSizeInv()*mesh->vertices_[i] - block_index.cast<Scalar>());
 
-            if (normalized_vertex.squaredNorm() > 1.0f) continue;
-            
+            if (normalized_vertex.squaredNorm() > 1.0f) 
+            {
+                std::cout << "[generateMeshMsg] squred norm of normalized vertex is too large: " << normalized_vertex.squaredNorm() << std::endl;
+                continue;
+            }
             // convert to unit16_t fixed point representation
             mesh_block.x.push_back(std::numeric_limits<uint16_t>::max()*normalized_vertex.x());
             mesh_block.y.push_back(std::numeric_limits<uint16_t>::max()*normalized_vertex.y());
@@ -244,6 +249,7 @@ inline void generateMeshMsg(
         // delete empty mesh blocks after sending them
         if (!mesh->hasVertices())
         {
+            std::cout << "[generateMeshMsg] the mesh does not have vertices" << std::endl;
             mesh_layer->removeMesh(block_index);
         }
 

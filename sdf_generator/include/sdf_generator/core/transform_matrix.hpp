@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdf_generator/core/type.hpp>
+#include <iostream>
 #include <Eigen/Core>
 
 namespace sdf_generator
@@ -24,12 +25,12 @@ public:
         return temp;
     }
 
-    inline auto operator*(const Eigen::Vector3<Scalar_t>& other) const noexcept
+    inline Eigen::Vector3<Scalar_t> operator*(const Eigen::Vector3<Scalar_t>& other) const noexcept
     {
-        return trans_ + quat_*other;
+        return trans_ + (quat_*other);
     }
 
-    inline auto operator*(const Eigen::Quaternion<Scalar_t>& other) const noexcept
+    inline Eigen::Quaternion<Scalar_t> operator*(const Eigen::Quaternion<Scalar_t>& other) const noexcept
     {
         return quat_*other;
     }

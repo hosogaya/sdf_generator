@@ -4,7 +4,6 @@ namespace sdf_rviz_plugins
 {
 MeshDisplay::MeshDisplay()
 {
-    MaterialLoader::loadMaterials();
     visible_property_ = std::make_shared<rviz_common::properties::BoolProperty>(
         "Visible", true,
         "Show or hide the mesh. If the mesh is hidden but not disabled, it "
@@ -18,6 +17,7 @@ MeshDisplay::~MeshDisplay() {}
 void MeshDisplay::onInitialize()
 {
     MFDClass::onInitialize();
+    MaterialLoader::loadMaterials();
 }
 
 void MeshDisplay::reset()
@@ -45,6 +45,7 @@ void MeshDisplay::processMessage(
 {
     if (!visual_)
     {
+        std::cout << "[MeshDisplay::processMessage] creating MeshVisual object" << std::endl;
         visual_ = std::make_unique<MeshVisual>(context_->getSceneManager(), scene_node_);
         visual_->setEnabled(visible_property_->getBool());
     }
@@ -68,6 +69,7 @@ bool MeshDisplay::updateTransform(const rclcpp::Time& stamp)
     ))
     {
         // warning
+        std::cout << "[MeshDisplay::updateTransfrom] Failed to update transform" << std::endl;
         return false;
     }
 

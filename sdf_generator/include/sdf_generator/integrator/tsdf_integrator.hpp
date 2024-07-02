@@ -74,7 +74,11 @@ protected:
     inline bool isPointValid(const Point& point_c, const bool freespace_point, bool& is_clearing) const
     {
         const Scalar ray_distance = point_c.norm();
-        if (ray_distance < config_.min_ray_length_) return false;
+        if (ray_distance < config_.min_ray_length_) 
+        {
+            std::cout << "[isPointValid] the ray distance is too small: " << ray_distance << std::endl;
+            return false;
+        }
         else if (ray_distance > config_.max_ray_length_)
         {
             if (config_.allow_clear_ || freespace_point)
@@ -82,7 +86,11 @@ protected:
                 is_clearing = true;
                 return true;
             }
-            else return false;
+            else 
+            {
+                std::cout << "[isPointValid] the ray distance is too large: " << ray_distance << std::endl;
+                return false;
+            }
         }
         else 
         {

@@ -8,11 +8,11 @@ tsdf_server:
     tsdf_voxel_size: 0.1
     tsdf_voxels_per_side: 8
     # integrator
-    truncation_distance: 0.1
+    truncation_distance: 0.05
     voxel_carving_enabled: true
     max_ray_length_m: 5.0
     min_ray_length_m: 0.1
-    max_weight: 10000.0
+    max_weight: 100.0
     use_const_weight:  false
     use_weight_dropoff: true
     allow_clear: true
@@ -43,11 +43,11 @@ tsdf_server:
     point_cloud_is_loop: true
     min_yaw_fov_rad: -3.14
     yaw_fov_rad_range: 6.28
-    min_pitch_fov_rad: -0.785
+    min_pitch_fov_rad: 0.0
     pitch_fov_rad_range: 1.57
 
     # mesh
-    mesh_publish_hz: 5
+    mesh_publish_hz: 1
     mesh_color_mode: color
     mesh_min_weight: 0.01
     mesh_use_color: true

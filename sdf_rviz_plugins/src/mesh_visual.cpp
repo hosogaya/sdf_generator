@@ -122,6 +122,7 @@ void MeshVisual::setMessage(
             // delete empty mesh blocks
             if (mesh_block.x.size() == 0)
             {
+                std::cout << "[MeshVisual] Mesh block size is zero" << std::endl;
                 scene_manager_->destroyManualObject(it->second);
                 object_map_.erase(it);
                 continue;
@@ -140,17 +141,25 @@ void MeshVisual::setMessage(
 
             ogre_object = scene_manager_->createManualObject(object_name);
             object_map_.insert(std::make_pair(index, ogre_object));
-            if (!is_enabled_) ogre_object->setVisible(false);
+            if (!is_enabled_) 
+            {
+                std::cout << "[MeshVisual] not enabled now" << std::endl;
+                ogre_object->setVisible(false);
+            }
             frame_node_->attachObject(ogre_object);
         }
 
         ogre_object->estimateVertexCount(connected_mesh.vertices_.size());
         ogre_object->estimateIndexCount(connected_mesh.indices_.size());
 
-        std::string material_name("SdfMaterial");
-        if (alpha < std::numeric_limits<uint8_t>::max()) material_name="SdfMaterialTransparent";
         
-        ogre_object->begin(material_name, Ogre::RenderOperation::OT_TRIANGLE_LIST);
+        std::string material_name("SdfMaterial");
+        if (alpha < std::numeric_limits<uint8_t>::max()) 
+        {
+            std::cout << "alpha is too small: " << alpha << std::endl;
+            material_name="SdfMaterialTransparent";
+        }
+        ogre_object->begin(material_name, Ogre::RenderOperation::OT_TRIANGLE_LIST, "SdfMaterials");
 
         for (size_t i=0; i<connected_mesh.vertices_.size(); ++i)
         {
@@ -180,6 +189,7 @@ void MeshVisual::setMessage(
 
         ogre_object->end();
     }
+    std::cout << "[MeshVisual] object map size: " << object_map_.size() << std::endl;
 }
 
 void MeshVisual::setEnabled(bool enabled)
