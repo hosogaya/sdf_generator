@@ -38,6 +38,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     // tsdf integrator
     if (integrator_config.integration_order_mode_ == "simple") 
         tsdf_integrator_.reset(new SimpleTsdfIntegrator(integrator_config, tsdf_map_->getTsdfLayerPtr()));
+    else if (integrator_config.integration_order_mode_ == "merge")
+        tsdf_integrator_.reset(new MergeTsdfIntegrator(integrator_config, tsdf_map_->getTsdfLayerPtr()));
     else 
     {
         RCLCPP_ERROR(get_logger(), "Please set specific integration method");
@@ -79,7 +81,7 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     mesh_color_mode_ = getColorMode(mesh_color_mode_string);
     mesh_layer_.reset(new MeshLayer(tsdf_map_->blockSize()));
     mesh_integrator_.reset(new MeshIntegrator<TsdfVoxel>(
-        mesh_integrator_config, tsdf_map_->getTsdfLayerPtr().get(), mesh_layer_.get()
+        mesh_integrator_config, tsdf_map_->getTsdfLayerPtr(), mesh_layer_
     ));
 
     RCLCPP_INFO(get_logger(), "built mesh integrator");

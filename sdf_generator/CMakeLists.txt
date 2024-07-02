@@ -15,6 +15,7 @@ set (sources
     src/core/tsdf_map.cpp
     src/integrator/ray_caster.cpp
     src/integrator/simple_tsdf_integrator.cpp
+    src/integrator/merge_tsdf_integrator.cpp
     src/integrator/thread_safe_index.cpp
     src/integrator/tsdf_integrator.cpp
     src/interpolator/util.cpp

@@ -17,6 +17,7 @@
 
 // integrators
 #include <sdf_generator/integrator/simple_tsdf_integrator.hpp>
+#include <sdf_generator/integrator/merge_tsdf_integrator.hpp>
 
 // color maps
 #include <sdf_generator/point_cloud/color_maps/gray_scale_color_map.hpp>

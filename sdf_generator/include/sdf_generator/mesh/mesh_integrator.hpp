@@ -28,8 +28,8 @@ public:
 
     MeshIntegrator(
         const MeshIntegratorConfig& config, 
-        Layer<VoxelType>* sdf_layer,
-        MeshLayer* mesh_layer
+        typename Layer<VoxelType>::Ptr sdf_layer,
+        MeshLayer::Ptr mesh_layer
     )
     : config_(config), sdf_layer_mutable_(sdf_layer), 
     sdf_layer_const_(sdf_layer), mesh_layer_(mesh_layer)
@@ -46,7 +46,7 @@ public:
     MeshIntegrator(
         const MeshIntegratorConfig& config, 
         Layer<VoxelType>& sdf_layer,
-        MeshLayer* mesh_layer
+        MeshLayer::Ptr mesh_layer
     )
     : MeshIntegrator(config, &sdf_layer, mesh_layer)
     {}
@@ -329,10 +329,10 @@ protected:
      * the updated flag) and mutable layer (in case you do want to clear the
      * updated flag).
      */
-    Layer<VoxelType>* sdf_layer_mutable_;
-    const Layer<VoxelType>* sdf_layer_const_;
+    typename Layer<VoxelType>::Ptr sdf_layer_mutable_;
+    const typename Layer<VoxelType>::Ptr sdf_layer_const_;
 
-    MeshLayer* mesh_layer_;
+    MeshLayer::Ptr mesh_layer_;
 
     Scalar voxel_size_;
     size_t voxels_per_side_;
