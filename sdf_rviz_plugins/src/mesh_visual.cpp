@@ -32,7 +32,7 @@ void MeshVisual::setPose(
 }
 
 void MeshVisual::setMessage(
-    const sdf_msgs::msg::Mesh::ConstPtr& msg, uint8_t alpha
+    const sdf_msgs::msg::Mesh::ConstPtr& msg
 )
 {
     for (const sdf_msgs::msg::MeshBlock& mesh_block: msg->mesh_blocks)
@@ -91,7 +91,7 @@ void MeshVisual::setMessage(
                     mesh_block.r[i], 
                     mesh_block.g[i], 
                     mesh_block.b[i], 
-                    alpha
+                    mesh_block.a[i]
                 );
                 mesh.colors_.push_back(color);
             }
@@ -104,7 +104,7 @@ void MeshVisual::setMessage(
                     std::numeric_limits<uint8_t>::max()*(mesh.normals_[i].x()*0.5f + 0.5f),
                     std::numeric_limits<uint8_t>::max()*(mesh.normals_[i].y()*0.5f + 0.5f),
                     std::numeric_limits<uint8_t>::max()*(mesh.normals_[i].z()*0.5f + 0.5f),
-                    alpha
+                    std::numeric_limits<uint8_t>::max()
                 );
                 mesh.colors_.push_back(color);
             }
@@ -154,11 +154,6 @@ void MeshVisual::setMessage(
 
         
         std::string material_name("SdfMaterial");
-        if (alpha < std::numeric_limits<uint8_t>::max()) 
-        {
-            std::cout << "alpha is too small: " << alpha << std::endl;
-            material_name="SdfMaterialTransparent";
-        }
         ogre_object->begin(material_name, Ogre::RenderOperation::OT_TRIANGLE_LIST, "SdfMaterials");
 
         for (size_t i=0; i<connected_mesh.vertices_.size(); ++i)

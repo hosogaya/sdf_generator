@@ -30,8 +30,7 @@ public:
     virtual ~MeshVisual();
 
     void setMessage(
-        const sdf_msgs::msg::Mesh::ConstPtr& msg,
-        uint8_t alpha = std::numeric_limits<uint8_t>::max()
+        const sdf_msgs::msg::Mesh::ConstPtr& msg
     );
 
     void setEnabled(bool enabled);

@@ -209,6 +209,7 @@ inline void generateMeshMsg(
             mesh_block.r.reserve(mesh->vertices_.size());
             mesh_block.g.reserve(mesh->vertices_.size());
             mesh_block.b.reserve(mesh->vertices_.size());
+            mesh_block.a.reserve(mesh->vertices_.size());
         }
         for (size_t i=0; i<mesh->vertices_.size(); ++i)
         {
@@ -239,6 +240,7 @@ inline void generateMeshMsg(
                 mesh_block.r.push_back(std::numeric_limits<uint8_t>::max()*color_msg.r);
                 mesh_block.g.push_back(std::numeric_limits<uint8_t>::max()*color_msg.g);
                 mesh_block.b.push_back(std::numeric_limits<uint8_t>::max()*color_msg.b);
+                mesh_block.a.push_back(std::numeric_limits<uint8_t>::max()*color_msg.a);
             }
         }
 

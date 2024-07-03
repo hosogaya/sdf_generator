@@ -168,15 +168,15 @@ inline bool createConnectedMesh
 
 template <typename VoxelType>
 bool getSdfIfValid(
-    const VoxelType& voxel, const Scalar min_weight, Scalar& sdf);
+    const VoxelType& voxel, const Scalar min_probability, Scalar& sdf);
 
 template <>
 inline bool getSdfIfValid(
-    const TsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
+    const TsdfVoxel& voxel, const Scalar min_probability, Scalar& sdf)
 {
-    if (voxel.weight_ <= min_weight) 
+    if (voxel.probability_ <= min_probability) 
     {
-        // std::cout << "[getSdfIfValid] the weight " << voxel.weight_ << " is smaller than " << min_weight << std::endl;
+        // std::cout << "[getSdfIfValid] the weight " << voxel.probability_ << " is smaller than " << min_probability << std::endl;
         return false;
     }
     sdf = voxel.distance_;
@@ -185,7 +185,7 @@ inline bool getSdfIfValid(
 
 template <>
 inline bool getSdfIfValid(
-    const EsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
+    const EsdfVoxel& voxel, const Scalar min_probability, Scalar& sdf)
 {
   if (!voxel.observed_) return false;
   sdf = voxel.distance_;
@@ -194,22 +194,23 @@ inline bool getSdfIfValid(
 
 template <typename VoxelType>
 bool getColorIfValid(
-    const VoxelType& voxel, const Scalar min_weight, Color& color);
+    const VoxelType& voxel, const Scalar min_probability, Color& color);
 
 template <>
 inline bool getColorIfValid(
-    const TsdfVoxel& voxel, const Scalar min_weight, Color& color)
+    const TsdfVoxel& voxel, const Scalar min_probability, Color& color)
 {
-    if (voxel.weight_ <= min_weight) {
+    if (voxel.probability_ <= min_probability) {
         return false;
     }
     color = voxel.color_;
+    color.a_ = voxel.probability_*std::numeric_limits<Color::Value>::max();
     return true;
 }
 
 template <>
 inline bool getColorIfValid(
-    const EsdfVoxel& voxel, const Scalar min_weight, Color& color)
+    const EsdfVoxel& voxel, const Scalar min_probability, Color& color)
 {
     if (!voxel.observed_) {
         return false;

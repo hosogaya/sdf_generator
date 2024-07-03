@@ -57,6 +57,8 @@ public:
         int max_consecutive_ray_collisions_ = 2;
         int clear_checks_every_n_frames_ = 1;
         Scalar max_integration_time_s_ = std::numeric_limits<Scalar>::max();
+
+        size_t max_nubmer_of_rays_ = 1e4;
     };
 
     TsdfIntegratorBase(const Config& config, Layer<TsdfVoxel>::Ptr layer);
@@ -144,6 +146,7 @@ protected:
         const Scalar init_weight) const;  
 
     Scalar getVoxelWeight(const Point& point_c) const;
+    Scalar calVoxelProbability(TsdfVoxel& voxel, const Scalar distance);
 
 protected:
     Config config_;

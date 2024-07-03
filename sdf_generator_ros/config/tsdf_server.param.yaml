@@ -52,5 +52,5 @@ tsdf_server:
     # mesh
     mesh_publish_hz: 0.5
     mesh_color_mode: color # [color, height, normals, gray]
-    mesh_min_weight: 10.0 # the voxel whose weight is smaller than this value is ignored. 
+    mesh_min_probability: 0.3 # (0.0, 1.0) the voxel whose probability is smaller than this value is ignored. 
     mesh_use_color: true

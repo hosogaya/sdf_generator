@@ -147,6 +147,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
     if (init_weight > 0.0f) with_init_weight = true;
 
     Scalar weight =calVoxelWeight(point_c, distance, with_init_weight, init_weight);
+    calVoxelProbability(tsdf_voxel, distance);
 
     if (weight < kWeightEpsilon) 
     {
@@ -258,5 +259,28 @@ Scalar TsdfIntegratorBase::getVoxelWeight(const Point& point_c) const
 
     return 0.0f;
 }
+
+Scalar TsdfIntegratorBase::calVoxelProbability(TsdfVoxel& voxel, const Scalar distance)
+{
+    if (distance <= config_.default_truncation_distance_)
+    {
+        voxel.probability_ = voxel.probability_*voxel.number_of_rays_ + 1.0;
+    }
+    else
+    {
+        voxel.probability_ = voxel.probability_*voxel.number_of_rays_ - 1.0;
+    }
+    if (voxel.number_of_rays_ < config_.max_nubmer_of_rays_) 
+    {
+        ++(voxel.number_of_rays_);
+        voxel.probability_ = std::min(1.0f, std::max(0.0f, voxel.probability_/(voxel.number_of_rays_)));
+    }
+    else 
+    {
+        voxel.probability_ = std::min(1.0f, std::max(0.0f, voxel.probability_/(voxel.number_of_rays_ + 1)));
+    }
+
+}
+
 
 }

@@ -381,9 +381,9 @@ inline MeshIntegratorConfig getMeshIntegratorConfig(
     RCLCPP_INFO(node_logger->get_logger(), "reading mesh integrator config");
     MeshIntegratorConfig config;
 
-    double min_weight = config.min_weight_;
-    if (getDoubleParam("mesh_min_weight", node_logger, node_params, min_weight))
-        config.min_weight_ = min_weight;
+    double min_probability = config.min_probability_;
+    if (getDoubleParam("mesh_min_probability", node_logger, node_params, min_probability))
+        config.min_probability_ = min_probability;
     
     getBoolParam("mesh_use_color", node_logger, node_params, config.use_color_);
 
