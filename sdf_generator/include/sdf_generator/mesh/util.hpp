@@ -176,7 +176,7 @@ inline bool getSdfIfValid(
 {
     if (voxel.weight_ <= min_weight) 
     {
-        std::cout << "[getSdfIfValid] the weight " << voxel.weight_ << " is smaller than " << min_weight << std::endl;
+        // std::cout << "[getSdfIfValid] the weight " << voxel.weight_ << " is smaller than " << min_weight << std::endl;
         return false;
     }
     sdf = voxel.distance_;

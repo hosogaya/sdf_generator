@@ -14,24 +14,24 @@ tsdf_server:
     max_ray_length_m: 5.0
     min_ray_length_m: 0.1
     max_weight: 100.0
-    use_const_weight:  false
-    use_weight_dropoff: true
-    allow_clear: true # If it takes False, only voxels of neighbors of a point are updated
+    use_const_weight: false # If this takes false, the longer the distance from sensor, the smaller the weight is. 
+    use_weight_dropoff: false
+    allow_clear: False # If it takes False, only voxels of neighbors of a point are updated
     start_voxel_subsampling_factor: 2.0 # only used for fast integrator (not implemented)
     max_consecutive_ray_collisions: 2 # only used for fast integrator (not implemented)
     clear_checks_every_n_frames: 1 # only used for fast integratior (not implemented)
 
     # max_integration_time_s: 
-    anti_grazing: false # If it take True, the merge integrator update voxel just once. 
+    anti_grazing: true # If it take True, the merge integrator update voxel just once. 
                         # If takes False, the voxel value updation is repeated for the number of points in the voxel. 
-    use_sparsity_compensation_factor: false # If it takes true, the weight calculated with a point whose the norm of distance form the boundary is smaller than truncation distance 
+    use_sparsity_compensation_factor: True # If it takes true, the weight calculated with a point whose the norm of distance form the boundary is smaller than truncation distance 
                                             # is multiplied by "sparsity_compensation_factor". 
-    sparsity_compensation_factor:  1.0
-    integration_order_mode: "merged" # [simple, merged] simple method uses whole points. Merge method bundles the points before the updation. 
+    sparsity_compensation_factor: 3.0
+    integration_order_mode: "simple" # [simple, merge] simple method uses whole points. Merge method bundles the points before the updation. 
     integrator_threads: 4
     merge_with_clear: true
     weight_reduction_exp: 1.0 # the larget is, the smaller the init weight is. 
-    weight_dropoff_epsilon: -1.0 # weight drops until its value becomes under the this value. 
+    weight_dropoff_epsilon: 10.0 # weight drops until its value becomes under the this value. 
     normal_available: true 
     reliable_band_ratio: 1.0 # point that its distance form boundary is smaller than (truncation_distance*reliable_band_ratio) is considered thier normal. 
     curve_assumption: true 
@@ -50,7 +50,7 @@ tsdf_server:
     pitch_fov_rad_range: 1.57
 
     # mesh
-    mesh_publish_hz: 1
+    mesh_publish_hz: 0.5
     mesh_color_mode: color # [color, height, normals, gray]
-    mesh_min_weight: 2.0 # the voxel whose weight is smaller than this value is ignored. 
+    mesh_min_weight: 10.0 # the voxel whose weight is smaller than this value is ignored. 
     mesh_use_color: true

@@ -76,7 +76,7 @@ protected:
         const Scalar ray_distance = point_c.norm();
         if (ray_distance < config_.min_ray_length_) 
         {
-            std::cout << "[isPointValid] the ray distance is too small: " << ray_distance << std::endl;
+            // std::cout << "[isPointValid] the ray distance is too small: " << ray_distance << std::endl;
             return false;
         }
         else if (ray_distance > config_.max_ray_length_)
@@ -88,7 +88,7 @@ protected:
             }
             else 
             {
-                std::cout << "[isPointValid] the ray distance is too large: " << ray_distance << std::endl;
+                // std::cout << "[isPointValid] the ray distance is too large: " << ray_distance << std::endl;
                 return false;
             }
         }

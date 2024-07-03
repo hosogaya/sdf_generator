@@ -382,10 +382,14 @@ inline MeshIntegratorConfig getMeshIntegratorConfig(
     MeshIntegratorConfig config;
 
     double min_weight = config.min_weight_;
-    if (getDoubleParam("mesh_min_wegiht", node_logger, node_params, min_weight))
+    if (getDoubleParam("mesh_min_weight", node_logger, node_params, min_weight))
         config.min_weight_ = min_weight;
     
     getBoolParam("mesh_use_color", node_logger, node_params, config.use_color_);
+
+    int threads_num = int(config.integrator_threads_);
+    if (getIntParam("integrator_threads", node_logger, node_params, threads_num))
+        config.integrator_threads_ = threads_num;
 
     return config;
 }

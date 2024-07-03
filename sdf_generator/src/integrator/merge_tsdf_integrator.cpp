@@ -24,27 +24,27 @@ void MergeTsdfIntegrator::integratePointArray(
     LongIndexHashMapType<AlignedVector<size_t>>::type clear_map;
 
     std::unique_ptr<ThreadSafeIndex> index_getter(
-        ThreadSafeIndexFactory::get(config_.integration_order_mode_, points_c)
+        ThreadSafeIndexFactory::get("simple", points_c)
     );
 
     // bundle rays in each voxel with point inside
     bundleRays(
         tf_global2current, points_c, freespace_points, index_getter.get(), 
-        voxel_map, clear_map
+        clear_map, voxel_map
     );
 
     // integrate rays for non-clearing voxel (close to the surface)
     integrateRays(
         tf_global2current, points_c, normals_c, colors, 
-        config_.enable_anti_grazing_, false, voxel_map, clear_map
+        config_.enable_anti_grazing_, false, clear_map, voxel_map
     );
 }
 
 void MergeTsdfIntegrator::bundleRays(
     const TransformMatrix<Scalar>& tf_global2current, const PointArray& points_c, 
     const bool freespace_points, ThreadSafeIndex* index_getter, 
-    LongIndexHashMapType<AlignedVector<size_t>>::type& voxel_map, 
-    LongIndexHashMapType<AlignedVector<size_t>>::type& clear_map
+    LongIndexHashMapType<AlignedVector<size_t>>::type& clear_map, 
+    LongIndexHashMapType<AlignedVector<size_t>>::type& voxel_map
 )
 {
     size_t point_index;
@@ -56,16 +56,17 @@ void MergeTsdfIntegrator::bundleRays(
 
         const Point point_g = tf_global2current*point_c;
         GlobalIndex voxel_index = calGridIndex<GlobalIndex>(point_g, voxel_size_inv_);
-
+        
         if (is_clearing)
         {
-            clear_map.emplace(voxel_index, point_index);
+            clear_map[voxel_index].push_back(point_index);
         }
         else
         {
-            voxel_map.emplace(voxel_index, point_index);
+            voxel_map[voxel_index].push_back(point_index);
         }
     }
+
 }
 
 void MergeTsdfIntegrator::integrateRays(
@@ -126,6 +127,7 @@ void MergeTsdfIntegrator::integrateVoxels(
         it = voxel_map.begin();
         map_size = voxel_map.size();
     }
+
 
     for (size_t i=0; i<map_size; ++i)
     {

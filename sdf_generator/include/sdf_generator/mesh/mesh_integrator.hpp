@@ -71,8 +71,6 @@ public:
         if (only_mesh_updated_blocks) sdf_layer_const_->getAllUpdatedBlocks(Update::kMesh, all_tsdf_blocks);
         else sdf_layer_const_->getAllAllocatedBlocks(all_tsdf_blocks);
 
-        std::cout << "[generateMesh] Block index list size: " << all_tsdf_blocks.size() << std::endl;
-
         // Allocate all the mesh memory
         for (const BlockIndex& block_index: all_tsdf_blocks)
         {
@@ -123,7 +121,7 @@ public:
 
         if (!block) 
         {
-            std::cout << "[updateMeshForBlock] Failed to get block indexed " << block_index.transpose() << std::endl;
+            // std::cout << "[updateMeshForBlock] Failed to get block indexed " << block_index.transpose() << std::endl;
             return;
         }
         extractBlockMesh(block, mesh);

@@ -129,7 +129,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
 
         if (normal_ratio < config_.reliable_normal_ratio_thre_) 
         {
-            std::cout << "[updateTsdfVoxel] normal ratio is too smalll: " << normal_ratio << std::endl;
+            // std::cout << "[updateTsdfVoxel] normal ratio is too smalll: " << normal_ratio << std::endl;
             return;
         }
         // get the non-projective sdf, if it's still larger than truncation
@@ -137,10 +137,10 @@ void TsdfIntegratorBase::updateTsdfVoxel(
         distance *= normal_ratio;
     }
 
-    // point hehind boundary is not updated. 
+    // point behind boundary is not updated. 
     if (distance < -config_.default_truncation_distance_) 
     {
-        std::cout << "[updateTsdfVoxel] the distance is too small: " << distance << std::endl;
+        // std::cout << "[updateTsdfVoxel] the distance is too small: " << distance << std::endl;
         return;
     }
     bool with_init_weight(false);
@@ -150,7 +150,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
 
     if (weight < kWeightEpsilon) 
     {
-        std::cout << "[updateTsdfVoxel] the weight is too small: " << weight << std::endl;
+        // std::cout << "[updateTsdfVoxel] the weight is too small: " << weight << std::endl;
         return; 
     }
     if (distance > config_.default_truncation_distance_)
@@ -176,7 +176,7 @@ void TsdfIntegratorBase::updateTsdfVoxelValue(
     Scalar new_weight = voxel.weight_ + weight;
     if (new_weight < kWeightEpsilon) 
     {
-        std::cout << "[updateTsdfVoxelValue] the new weight is too small: " << new_weight << std::endl;
+        // std::cout << "[updateTsdfVoxelValue] the new weight is too small: " << new_weight << std::endl;
         return;
     }
     voxel.distance_ = (voxel.distance_*voxel.weight_ + distance*weight) / new_weight;
