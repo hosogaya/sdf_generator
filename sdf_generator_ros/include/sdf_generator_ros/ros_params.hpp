@@ -302,17 +302,17 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
     if (getDoubleParam("weight_dropoff_epsilon", node_logger, node_params, weight_dropoff_epsilon))
         integrator_config.weight_dropoff_epsilon_ = weight_dropoff_epsilon;
 
-    bool normal_available = integrator_config.normal_available_;
-    if (getBoolParam("normal_available", node_logger, node_params, normal_available))
-        integrator_config.normal_available_ = normal_available;
+    // bool normal_available = integrator_config.normal_available_;
+    // if (getBoolParam("normal_available", node_logger, node_params, normal_available))
+    //     integrator_config.normal_available_ = normal_available;
 
     double reliable_band_ratio = integrator_config.reliable_band_ratio_;
     if (getDoubleParam("reliable_band_ratio", node_logger, node_params, reliable_band_ratio))
         integrator_config.reliable_band_ratio_ = reliable_band_ratio;
 
-    bool curve_assumption = integrator_config.curve_assumption_;
-    if (getBoolParam("curve_assumption", node_logger, node_params, curve_assumption))
-        integrator_config.curve_assumption_ = curve_assumption;
+    // bool curve_assumption = integrator_config.curve_assumption_;
+    // if (getBoolParam("curve_assumption", node_logger, node_params, curve_assumption))
+    //     integrator_config.curve_assumption_ = curve_assumption;
 
     double reliable_normal_ratio_thre = integrator_config.reliable_normal_ratio_thre_;
     if (getDoubleParam("reliable_normal_ratio_thre", node_logger, node_params, reliable_normal_ratio_thre))
@@ -386,9 +386,9 @@ inline MeshIntegratorConfig getMeshIntegratorConfig(
     RCLCPP_INFO(node_logger->get_logger(), "reading mesh integrator config");
     MeshIntegratorConfig config;
 
-    double min_probability = config.min_probability_;
-    if (getDoubleParam("mesh_min_probability", node_logger, node_params, min_probability))
-        config.min_probability_ = min_probability;
+    double min_weight = config.min_weight_;
+    if (getDoubleParam("mesh_min_weight", node_logger, node_params, min_weight))
+        config.min_weight_ = min_weight;
     
     getBoolParam("mesh_use_color", node_logger, node_params, config.use_color_);
 

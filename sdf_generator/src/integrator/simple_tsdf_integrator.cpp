@@ -24,6 +24,8 @@ void SimpleTsdfIntegrator::integratePointArray(
 
     updateLayerWithStoredBlocks();
     // std::cout << "[integratePointArray] updated layer with stored blocks. Num. of block: " << layer_->blockNum() << std::endl;
+
+    dropOffWeightNotObserved();
 }
 
 void SimpleTsdfIntegrator::integrateFunction(
@@ -73,6 +75,7 @@ void SimpleTsdfIntegrator::integrateFunction(
                 normal_c, normal_g, global_voxel_index, color, 0.0f,
                 *voxel
             );
+            
             // std::cout << "[integrationFunction] voxel: " << *voxel << std::endl;
         }
     }

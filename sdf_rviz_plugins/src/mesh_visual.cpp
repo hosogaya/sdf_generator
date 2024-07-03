@@ -176,7 +176,8 @@ void MeshVisual::setMessage(
                 color_conv_factor*static_cast<float>(connected_mesh.colors_[i].r_),
                 color_conv_factor*static_cast<float>(connected_mesh.colors_[i].g_),
                 color_conv_factor*static_cast<float>(connected_mesh.colors_[i].b_),
-                color_conv_factor*static_cast<float>(connected_mesh.colors_[i].a_)
+                // color_conv_factor*static_cast<float>(connected_mesh.colors_[i].a_)
+                color_conv_factor*255.0
             );
         }
         // needed for anything other than flat rendering

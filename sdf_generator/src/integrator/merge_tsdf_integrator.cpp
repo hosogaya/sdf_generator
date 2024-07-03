@@ -38,6 +38,9 @@ void MergeTsdfIntegrator::integratePointArray(
         tf_global2current, points_c, normals_c, colors, 
         config_.enable_anti_grazing_, false, clear_map, voxel_map
     );
+
+    updateLayerWithStoredBlocks();
+    dropOffWeightNotObserved();
 }
 
 void MergeTsdfIntegrator::bundleRays(
@@ -102,8 +105,6 @@ void MergeTsdfIntegrator::integrateRays(
             thread.join();
         }
     }
-
-    updateLayerWithStoredBlocks();
 }
 
 void MergeTsdfIntegrator::integrateVoxels(
@@ -170,11 +171,11 @@ void MergeTsdfIntegrator::integrateVoxel(
         merged_point_c = (merged_point_c*merged_weight + point_c*point_weight) / (merged_weight + point_weight);
         merged_color = Color::blendTwoColors(merged_color, merged_weight, color, point_weight);
 
-        if (config_.normal_available_)
-        {
+        // if (config_.normal_available_)
+        // {
             merged_normal_c = merged_normal_c*merged_weight + normal_c*point_weight;
             if (merged_normal_c.squaredNorm() > kEpsilon*kEpsilon) merged_normal_c.normalize();
-        }
+        // }
         merged_weight += point_weight;
 
         // only take first point when clearing

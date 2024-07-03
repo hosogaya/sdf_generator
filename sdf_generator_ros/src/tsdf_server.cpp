@@ -125,7 +125,7 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     // tsdf_integrator_->integratePointArray(TransformMatrix<Scalar>(), points_c_temp, normals_temp, colors_temp, false);
 
     // BlockIndexList block_indices;
-    // tsdf_map_->getTsdfLayerConstPtr()->getAllAllocatedBlocks(block_indices);
+    // tsdf_map_->getTsdfLayerConstPtr()->getAlllocatedBlocks(block_indices);
     // for (const auto& block_index: block_indices)
     // {
     //     auto block_ptr = tsdf_map_->getTsdfLayerConstPtr()->getBlockConstPtr(block_index);

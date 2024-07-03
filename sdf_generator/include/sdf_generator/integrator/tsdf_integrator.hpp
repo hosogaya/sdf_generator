@@ -42,9 +42,9 @@ public:
         Scalar sparsity_compensation_factor_ = 1.0f;
 
         /// non-projective correction specific
-        bool normal_available_ = false;
+        // bool normal_available_ = false;
         Scalar reliable_band_ratio_ = 2.0f;
-        bool curve_assumption_ = false;
+        // bool curve_assumption_ = false;
         Scalar reliable_normal_ratio_thre_ = 0.1f;
 
         size_t integrator_threads_ = std::thread::hardware_concurrency();
@@ -146,7 +146,8 @@ protected:
         const Scalar init_weight) const;  
 
     Scalar getVoxelWeight(const Point& point_c) const;
-    Scalar calVoxelProbability(TsdfVoxel& voxel, const Scalar distance);
+
+    void dropOffWeightNotObserved();
 
 protected:
     Config config_;

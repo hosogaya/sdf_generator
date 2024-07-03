@@ -168,24 +168,59 @@ inline bool createConnectedMesh
 
 template <typename VoxelType>
 bool getSdfIfValid(
-    const VoxelType& voxel, const Scalar min_probability, Scalar& sdf);
+    const VoxelType& voxel, const Scalar min_weight, Scalar& sdf);
 
+/*******************************
+ * probability
+ ********************************/
+// template <>
+// inline bool getSdfIfValid(
+//     const TsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
+// {
+//     if (voxel.probability_ <= min_weight) 
+//     {
+//         // std::cout << "[getSdfIfValid] the weight " << voxel.probability_ << " is smaller than " << min_weight << std::endl;
+//         return false;
+//     }
+//     sdf = voxel.distance_;
+//     return true;
+// }
+
+/*******************************
+ * weight
+ ********************************/
 template <>
 inline bool getSdfIfValid(
-    const TsdfVoxel& voxel, const Scalar min_probability, Scalar& sdf)
+    const TsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
 {
-    if (voxel.probability_ <= min_probability) 
+    if (voxel.weight_ <= min_weight) 
     {
-        // std::cout << "[getSdfIfValid] the weight " << voxel.probability_ << " is smaller than " << min_probability << std::endl;
+        // std::cout << "[getSdfIfValid] the weight " << voxel.probability_ << " is smaller than " << min_weight << std::endl;
         return false;
     }
     sdf = voxel.distance_;
     return true;
 }
 
+/*******************************
+ * distance
+ ********************************/
+// template <>
+// inline bool getSdfIfValid(
+//     const TsdfVoxel& voxel, const Scalar truncate_distance, Scalar& sdf)
+// {
+//     if (voxel.distance_ > truncate_distance) 
+//     {
+//         // std::cout << "[getSdfIfValid] the weight " << voxel.probability_ << " is smaller than " << min_weight << std::endl;
+//         return false;
+//     }
+//     sdf = voxel.distance_;
+//     return true;
+// }
+
 template <>
 inline bool getSdfIfValid(
-    const EsdfVoxel& voxel, const Scalar min_probability, Scalar& sdf)
+    const EsdfVoxel& voxel, const Scalar min_weight, Scalar& sdf)
 {
   if (!voxel.observed_) return false;
   sdf = voxel.distance_;
@@ -194,23 +229,58 @@ inline bool getSdfIfValid(
 
 template <typename VoxelType>
 bool getColorIfValid(
-    const VoxelType& voxel, const Scalar min_probability, Color& color);
+    const VoxelType& voxel, const Scalar min_weight, Color& color);
 
+
+/*******************************
+ * probability
+ ********************************/
+// template <>
+// inline bool getColorIfValid(
+//     const TsdfVoxel& voxel, const Scalar min_weight, Color& color)
+// {
+//     if (voxel.probability_ <= min_weight) {
+//         return false;
+//     }
+//     color = voxel.color_;
+//     // color.a_ = voxel.probability_*std::numeric_limits<Color::Value>::max();
+//     return true;
+// }
+
+/*******************************
+ * weight
+ ********************************/
 template <>
 inline bool getColorIfValid(
-    const TsdfVoxel& voxel, const Scalar min_probability, Color& color)
+    const TsdfVoxel& voxel, const Scalar min_weight, Color& color)
 {
-    if (voxel.probability_ <= min_probability) {
+    if (voxel.weight_ <= min_weight) {
         return false;
     }
     color = voxel.color_;
-    color.a_ = voxel.probability_*std::numeric_limits<Color::Value>::max();
+    // color.a_ = voxel.probability_*std::numeric_limits<Color::Value>::max();
     return true;
 }
 
+/*******************************
+ * distance
+ ********************************/
+// template <>
+// inline bool getColorIfValid(
+//     const TsdfVoxel& voxel, const Scalar truncate_distance, Color& color)
+// {
+//     if (voxel.distance_ > truncate_distance) {
+//         return false;
+//     }
+//     color = voxel.color_;
+//     // color.a_ = voxel.probability_*std::numeric_limits<Color::Value>::max();
+//     return true;
+// }
+
+
 template <>
 inline bool getColorIfValid(
-    const EsdfVoxel& voxel, const Scalar min_probability, Color& color)
+    const EsdfVoxel& voxel, const Scalar min_weight, Color& color)
 {
     if (!voxel.observed_) {
         return false;

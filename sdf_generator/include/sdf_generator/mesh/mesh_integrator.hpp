@@ -15,7 +15,7 @@ struct MeshIntegratorConfig
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     bool use_color_ = true;
-    float min_probability_ =1e-4;
+    float min_weight_ =1e-4;
 
     size_t integrator_threads_ = std::thread::hardware_concurrency();
 };
@@ -69,7 +69,7 @@ public:
     {
         BlockIndexList all_tsdf_blocks;
         if (only_mesh_updated_blocks) sdf_layer_const_->getAllUpdatedBlocks(Update::kMesh, all_tsdf_blocks);
-        else sdf_layer_const_->getAllAllocatedBlocks(all_tsdf_blocks);
+        else sdf_layer_const_->getAlllocatedBlocks(all_tsdf_blocks);
 
         // Allocate all the mesh memory
         for (const BlockIndex& block_index: all_tsdf_blocks)
@@ -212,7 +212,7 @@ public:
             VoxelIndex corner_index = index + cube_index_offsets_.col(i);
             const VoxelType& voxel = block.getConstVoxel(corner_index);
 
-            if (!getSdfIfValid(voxel, config_.min_probability_, corner_sdf(i)))
+            if (!getSdfIfValid(voxel, config_.min_weight_, corner_sdf(i)))
             {
                 all_neighbors_observed = false;
                 break;
@@ -243,7 +243,7 @@ public:
             if (block.isValidVoxelIndex(corner_index))
             {
                 const VoxelType& voxel = block.getConstVoxel(corner_index);
-                if (!getSdfIfValid(voxel, config_.min_probability_, corner_sdf(i)))
+                if (!getSdfIfValid(voxel, config_.min_weight_, corner_sdf(i)))
                 {
                     all_neighbors_observed = false;
                     break;
@@ -275,7 +275,7 @@ public:
                     typename Block<VoxelType>::ConstPtr neighbor_block = sdf_layer_const_->getBlockConstPtr(neighbor_index);
                     const VoxelType& voxel = neighbor_block->getConstVoxel(corner_index);
 
-                    if (!getSdfIfValid(voxel, config_.min_probability_, corner_sdf(i)))
+                    if (!getSdfIfValid(voxel, config_.min_weight_, corner_sdf(i)))
                     {
                         all_neighbors_observed = false;
                         break;
@@ -308,13 +308,13 @@ public:
             if (block.isValidVoxelIndex(voxel_index))
             {
                 const VoxelType& voxel = block.getConstVoxel(voxel_index);
-                getColorIfValid(voxel, config_.min_probability_, mesh->colors_[i]);
+                getColorIfValid(voxel, config_.min_weight_, mesh->colors_[i]);
             }
             else
             {
                 const typename Block<VoxelType>::ConstPtr neighbor_block = sdf_layer_const_->getBlockConstPtr(vertex);
                 const VoxelType& voxel = neighbor_block->getConstVoxel(vertex);
-                getColorIfValid(voxel, config_.min_probability_, mesh->colors_[i]);
+                getColorIfValid(voxel, config_.min_weight_, mesh->colors_[i]);
             }
         }
     }

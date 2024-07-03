@@ -9,7 +9,7 @@ namespace sdf_generator
 
 namespace Update
 {
-    enum Status {kMap, kMesh, kEsdf, kCount};
+    enum Status {kMap=0, kMesh, kEsdf, kOccupied, kCount};
 }
 
 template <typename VoxelType>
@@ -24,7 +24,7 @@ public:
     Block(size_t voxels_per_side, Scalar voxel_size, const Point& origin)
     : voxel_size_(voxel_size), voxels_per_side_(voxels_per_side), origin_(origin), updated_(false)
     {
-        num_voxels_ = std::pow(voxels_per_side_, 3.0f);
+        num_voxels_ = voxels_per_side_*voxels_per_side_*voxels_per_side_;
         voxel_size_inv_ = 1.0/voxel_size_;
         block_size_ = voxel_size_*voxels_per_side_;
         block_size_inv_ = 1.0/block_size_;

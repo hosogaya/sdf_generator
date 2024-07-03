@@ -98,14 +98,15 @@ void TsdfIntegratorBase::updateTsdfVoxel(
         in_the_reliable_band = false;
 
     Vector3 gradient_c;
-    if (config_.normal_available_ && in_the_reliable_band)
+    // if (config_.normal_available_ && in_the_reliable_band)
+    if (in_the_reliable_band)
     {
         Scalar normal_ratio(1.0);
         if (tsdf_voxel.gradient_.norm() > kWeightEpsilon)
         {
             gradient_c = tf_global2current.rotation().conjugate()*tsdf_voxel.gradient_;
             // Condition 1. curve surface
-            if (config_.curve_assumption_ && normal_c.norm() > kWeightEpsilon)
+            if (normal_c.norm() > kWeightEpsilon)
             {
                 Scalar cos_theta = std::abs(gradient_c.dot(point_c)) / point_c.norm();
                 Scalar cos_alpha = std::abs(gradient_c.dot(normal_c)) / normal_c.norm();
@@ -147,7 +148,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
     if (init_weight > 0.0f) with_init_weight = true;
 
     Scalar weight =calVoxelWeight(point_c, distance, with_init_weight, init_weight);
-    calVoxelProbability(tsdf_voxel, distance);
+    // calVoxelProbability(tsdf_voxel, distance);
 
     if (weight < kWeightEpsilon) 
     {
@@ -159,12 +160,14 @@ void TsdfIntegratorBase::updateTsdfVoxel(
         updateTsdfVoxelValue(tsdf_voxel, distance, weight);
         tsdf_voxel.distance_ = std::min(config_.default_truncation_distance_, tsdf_voxel.distance_);
     }
-    else if (config_.normal_available_)
+    // else if (config_.normal_available_)
+    else 
     {
         if (normal_g.norm() > kWeightEpsilon)  
             updateTsdfVoxelGradient(tsdf_voxel, normal_g, weight);
 
         updateTsdfVoxelValue(tsdf_voxel, distance, weight, &color);
+        tsdf_voxel.occupied_ = true;
     }
 
     // std::cout << "[updateTsdfVoxel] The distance: " << tsdf_voxel.distance_ << ", The weight: " << tsdf_voxel.weight_ << std::endl;
@@ -227,18 +230,18 @@ Scalar TsdfIntegratorBase::calVoxelWeight(
     else if (!config_.use_const_weight_) weight /= std::pow(point_c.norm(), config_.weight_reduction_exp_);
 
     // Part 2. weight drop-off
-    if (config_.use_weight_dropoff_)
-    {
-        const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon_ > 0.0f
-                                      ? config_.weight_dropoff_epsilon_
-                                      : config_.weight_dropoff_epsilon_*-voxel_size_;
-        if (distance < -dropoff_epsilon)
-        {
-            weight *= (config_.default_truncation_distance_ + distance)
-                    / (config_.default_truncation_distance_ - dropoff_epsilon);
-            weight = std::max(weight, 0.0f);
-        }
-    }
+    // if (config_.use_weight_dropoff_)
+    // {
+    //     const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon_ > 0.0f
+    //                                   ? config_.weight_dropoff_epsilon_
+    //                                   : config_.weight_dropoff_epsilon_*-voxel_size_;
+    //     if (distance < -dropoff_epsilon)
+    //     {
+    //         weight *= (config_.default_truncation_distance_ + distance)
+    //                 / (config_.default_truncation_distance_ - dropoff_epsilon);
+    //         weight = std::max(weight, 0.0f);
+    //     }
+    // }
 
     // Part 3. deal with sparse point cloud
     if (config_.use_sparsity_compensation_factor_)
@@ -260,21 +263,50 @@ Scalar TsdfIntegratorBase::getVoxelWeight(const Point& point_c) const
     return 0.0f;
 }
 
-Scalar TsdfIntegratorBase::calVoxelProbability(TsdfVoxel& voxel, const Scalar distance)
+void TsdfIntegratorBase::dropOffWeightNotObserved()
 {
-    if (distance <= config_.default_truncation_distance_)
+    BlockIndexList block_indices;
+    layer_->getAllUpdatedBlocks(Update::kOccupied, block_indices);
+    if (config_.use_weight_dropoff_ && config_.weight_dropoff_epsilon_ > 0.0)
     {
-        voxel.probability_ = (voxel.probability_*voxel.number_of_rays_ + 1.0)/(voxel.number_of_rays_ + 1);
+        for (const auto& block_index : block_indices)
+        {
+            typename Block<TsdfVoxel>::Ptr block_ptr = layer_->getBlockPtr(block_index);
+
+            block_ptr->setUpdated(Update::kOccupied, false);
+            for (size_t i=0; i<block_ptr->numVoxels(); ++i)
+            {
+                auto& voxel = block_ptr->getVoxel(i);
+
+                if (voxel.occupied_) 
+                {
+                    voxel.probability_ = std::max(0.0f, std::min(voxel.probability_+1.0f, 10.0f));
+                    voxel.occupied_ = false;
+                }
+                else 
+                {
+                    voxel.probability_ = std::max(0.0f, std::min(voxel.probability_ - config_.weight_dropoff_epsilon_, 10.0f));
+                    // voxel.weight_ = std::max(0.0f, voxel.weight_-config_.weight_dropoff_epsilon_);
+                }
+            }
+        }
     }
     else 
     {
-        voxel.probability_ *= (voxel.number_of_rays_)/(voxel.number_of_rays_ + 1);
+        for (const auto& block_index : block_indices)
+        {
+            typename Block<TsdfVoxel>::Ptr block_ptr = layer_->getBlockPtr(block_index);
+
+            block_ptr->setUpdated(Update::kOccupied, false);
+
+            for (size_t i=0; i<block_ptr->numVoxels(); ++i)
+            {
+                auto& voxel = block_ptr->getVoxel(i);
+                voxel.occupied_ = false;
+                voxel.probability_ = 10.0;
+            }
+        }
     }
-
-    if (voxel.number_of_rays_ < config_.max_nubmer_of_rays_) ++(voxel.number_of_rays_);
-
-
 }
-
 
 }

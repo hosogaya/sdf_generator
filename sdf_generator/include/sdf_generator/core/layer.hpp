@@ -74,7 +74,7 @@ public:
         block_map_.insert(block_pair);
     }
 
-    void getAllAllocatedBlocks(BlockIndexList& blocks) const
+    void getAlllocatedBlocks(BlockIndexList& blocks) const
     {
         blocks.clear();
         blocks.reserve(block_map_.size());
