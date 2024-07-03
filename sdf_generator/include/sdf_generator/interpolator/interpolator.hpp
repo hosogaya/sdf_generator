@@ -22,8 +22,8 @@ public:
     bool getVoxel(const Point& pos,  VoxelType& voxel, bool interpolate = false) const;
     bool getGradient(const Point& pos, Vector3& grad, bool interpolate = false) const;
 
-    // bool getAdaptiveDistanceAndGradient(const Point& point, Scalar& distance, Vector3& grad) const;
-    // bool getNearestDistanceAndWeight(const Point& point, Scalar& distance, Scalar& weight) const;
+    bool getAdaptiveDistanceAndGradient(const Point& point, Scalar& distance, Vector3& grad) const;
+    bool getNearestDistanceAndWeight(const Point& point, Scalar& distance, Scalar& weight) const;
     bool setIndexes(const Point& pos, BlockIndex& block_index, InterpIndexes& voxel_indexes) const;
     bool getVoxelsAndQVector(const Point& pos, const VoxelType** voxels, InterpVector& q_vector) const;
     bool getVoxelsAndQVector(const BlockIndex& block_index, const InterpIndexes& voxel_indexes,

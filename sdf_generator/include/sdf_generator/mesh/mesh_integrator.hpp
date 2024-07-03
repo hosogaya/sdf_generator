@@ -69,7 +69,7 @@ public:
     {
         BlockIndexList all_tsdf_blocks;
         if (only_mesh_updated_blocks) sdf_layer_const_->getAllUpdatedBlocks(Update::kMesh, all_tsdf_blocks);
-        else sdf_layer_const_->getAlllocatedBlocks(all_tsdf_blocks);
+        else sdf_layer_const_->getAllAllocatedBlocks(all_tsdf_blocks);
 
         // Allocate all the mesh memory
         for (const BlockIndex& block_index: all_tsdf_blocks)

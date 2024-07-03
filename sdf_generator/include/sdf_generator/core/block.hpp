@@ -72,6 +72,18 @@ public:
         return result;
     }
 
+    VoxelIndex calTruncatedVoxelIndex(const Point& coords) const
+    {
+        const IndexElement max_value = voxels_per_side_ - 1;
+        VoxelIndex voxel_index = calGridIndex<VoxelIndex>(coords - origin_, voxel_size_inv_);
+
+        return VoxelIndex(
+            std::max(0, std::min(voxel_index.x(), max_value)),
+            std::max(0, std::min(voxel_index.y(), max_value)),
+            std::max(0, std::min(voxel_index.z(), max_value))
+        );
+    }
+
     Point calCoordinate(const VoxelIndex& index) const
     {
         return origin_ + calCenterPoint(index, voxel_size_);

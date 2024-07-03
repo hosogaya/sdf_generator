@@ -38,11 +38,11 @@ void MeshVisual::setMessage(
     for (const sdf_msgs::msg::MeshBlock& mesh_block: msg->mesh_blocks)
     {
         const sdf_generator::BlockIndex index
-        {
+        (
             mesh_block.index[0], 
             mesh_block.index[1],
             mesh_block.index[2]
-        };
+        );
 
         size_t vertex_index = 0;
         sdf_generator::Mesh mesh;

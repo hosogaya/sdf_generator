@@ -9,7 +9,7 @@ unsigned int TsdfMap::extractDistanceAndWeightOfVoxelsInSlicePlane(
     Eigen::Ref<Eigen::VectorX<Scalar>> weights, unsigned int max_points) const
 {
     BlockIndexList blocks;
-    layer_->getAlllocatedBlocks(blocks);
+    layer_->getAllAllocatedBlocks(blocks);
 
     // Cache layer settings.
     const size_t vps = layer_->voxelsPerSide();

@@ -12,7 +12,7 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
     sdf_msgs::msg::Layer::UniquePtr msg(new sdf_msgs::msg::Layer);
 
     BlockIndexList indexes;
-    layer->getAlllocatedBlocks(indexes);
+    layer->getAllAllocatedBlocks(indexes);
     int voxels_num = layer->voxelsPerSide()*layer->voxelsPerSide()*layer->voxelsPerSide();
     msg->voxel_size = layer->voxelSize();
     msg->voxels_per_side = layer->voxelsPerSide();

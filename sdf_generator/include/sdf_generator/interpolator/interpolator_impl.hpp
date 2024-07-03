@@ -356,4 +356,93 @@ inline TsdfVoxel Interpolator<TsdfVoxel>::interpVoxel(const InterpVector& q_vect
     return voxel;
 }
 
+
+template <typename VoxelType>
+bool Interpolator<VoxelType>::getAdaptiveDistanceAndGradient(
+    const Point& point, Scalar& distance, Vector3& grad
+) const
+{
+    Scalar nearest_neighbor_distance = 0.0f;
+    if (!getDistance(point, nearest_neighbor_distance, false))
+        return false;
+
+    // Then try to get the interpolated distance
+    bool has_interpolated_distance = getDistance(point, distance, true);
+
+    // Now try to estimate the gradient. Same general procedure as getGradient()
+    // above, but also allow finite difference methods other than central
+    // difference (left difference, right difference).
+    typename Layer<VoxelType>::BlockType::CosntPtr block_ptr = layer_->getBlockConstPtr(point);
+    if (block_ptr == nullptr) return false;
+
+    Vector3 gradient(0.0f, 0.0f, 0.0f);
+
+    // Try to get the full gradient if possible
+    bool has_interpolated_grad = false;
+    if (has_interpolated_distance)
+        has_interpolated_grad = getGradient(point, gradient, true);
+
+    if (!has_interpolated_grad)
+    {
+        // Otherwise fall back to this
+        for (unsigned int i=0; i<3; ++i)
+        {
+            // First Check if we can get both sides for central difference
+            Vector3 offset(0.0f, 0.0f, 0.0f);
+            offset(i) = block_ptr->voxelSize();
+            Scalar left_distance = 0.0f;
+            Scalar right_distance = 0.0f;
+            bool left_valid = getDistance(point - offset, left_distance, false);
+            bool right_valid = getDistance(point + offset, right_distance, false);
+
+            if (left_valid && right_valid)
+            {
+                gradient(i) = (right_distance - left_distance) 
+                             *(0.5f*block_ptr->voxelSizeInv());
+            }
+            else if (left_valid)
+            {
+                gradient(i) = (nearest_neighbor_distance - left_distance) 
+                             *(block_ptr->voxelSizeInv()); 
+            }
+            else if (right_valid)
+            {
+                gradient(i) = (right_distance - nearest_neighbor_distance)
+                             *(block_ptr->voxelSizeInv());
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    if (!has_interpolated_distance)
+    {
+        VoxelIndex voxel_index = block_ptr->calTruncatedVoxelIndex(point);
+        Point voxel_pos = block_ptr->calCoordinate(voxel_index);
+
+        Vector3 voxel_offset = point - voxel_pos;
+        distance = nearest_neighbor_distance + voxel_offset.dot(gradient);
+    }
+
+    grad = gradient;
+    return true;
+}
+
+template <typename VoxelType>
+bool Interpolator<VoxelType>::getNearestDistanceAndWeight(
+    const Point& point, Scalar& distance, Scalar& weight
+) const
+{
+    typename Layer<VoxelType>::BlockType::ConstPtr block_ptr = layer_->getBlockConstPtr(point);
+    if (block_ptr == nullptr) return false;
+
+    const VoxelType& voxel = block_ptr->getVoxel(point);
+    distance = getVoxelDistance(voxel);
+    weight = getVoxelWeight(voxel);
+
+    return true;
+}
+
 }
