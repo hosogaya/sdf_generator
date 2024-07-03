@@ -264,21 +264,15 @@ Scalar TsdfIntegratorBase::calVoxelProbability(TsdfVoxel& voxel, const Scalar di
 {
     if (distance <= config_.default_truncation_distance_)
     {
-        voxel.probability_ = voxel.probability_*voxel.number_of_rays_ + 1.0;
-    }
-    else
-    {
-        voxel.probability_ = voxel.probability_*voxel.number_of_rays_ - 1.0;
-    }
-    if (voxel.number_of_rays_ < config_.max_nubmer_of_rays_) 
-    {
-        ++(voxel.number_of_rays_);
-        voxel.probability_ = std::min(1.0f, std::max(0.0f, voxel.probability_/(voxel.number_of_rays_)));
+        voxel.probability_ = (voxel.probability_*voxel.number_of_rays_ + 1.0)/(voxel.number_of_rays_ + 1);
     }
     else 
     {
-        voxel.probability_ = std::min(1.0f, std::max(0.0f, voxel.probability_/(voxel.number_of_rays_ + 1)));
+        voxel.probability_ *= (voxel.number_of_rays_)/(voxel.number_of_rays_ + 1);
     }
+
+    if (voxel.number_of_rays_ < config_.max_nubmer_of_rays_) ++(voxel.number_of_rays_);
+
 
 }
 

@@ -318,6 +318,11 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
     if (getDoubleParam("reliable_normal_ratio_thre", node_logger, node_params, reliable_normal_ratio_thre))
         integrator_config.reliable_normal_ratio_thre_ = reliable_normal_ratio_thre;
 
+    int max_number_of_rays = integrator_config.max_nubmer_of_rays_;
+    if (getIntParam("max_number_of_rays", node_logger, node_params, max_number_of_rays))
+        if (max_number_of_rays > 0) 
+            integrator_config.max_nubmer_of_rays_ = max_number_of_rays;
+
     return integrator_config;
 }
 
