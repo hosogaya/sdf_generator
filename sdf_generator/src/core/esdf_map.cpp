@@ -48,10 +48,13 @@ bool EsdfMap::getDistanceAndGradientAtPosition(
     success &= interpolator_.getGradient(
         position.cast<Scalar>(), gradient_fp, interpolate
     );
-
-    distance = static_cast<double>(distance_fp);
-    gradient = gradient_fp.cast<double>();
-
+    
+    if (success)
+    {
+        distance = static_cast<double>(distance_fp);
+        gradient = gradient_fp.cast<double>();
+    }
+    
     return success;
 }
 

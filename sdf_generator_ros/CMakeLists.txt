@@ -42,7 +42,9 @@ set (dependencies
 
 set(node_plugins "")
 
-# tsdf server
+#######################################
+## Tsdf server Component
+#######################################
 add_library(tsdf_server SHARED src/tsdf_server.cpp)
 ament_target_dependencies(tsdf_server ${dependencies})
 target_include_directories(tsdf_server
@@ -62,6 +64,32 @@ install(
   RUNTIME DESTINATION bin
 )
 
+
+#######################################
+## Esdf server Component
+#######################################
+add_library(esdf_server SHARED src/tsdf_server.cpp src/esdf_server.cpp)
+ament_target_dependencies(esdf_server ${dependencies})
+target_include_directories(esdf_server
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>"
+)
+rclcpp_components_register_nodes(esdf_server "sdf_generator::EsdfServer")
+set(node_plugins "${node_plugins}sdf_generator::EsdfServer;$<TARGET_FILE:esdf_server>\n")
+ament_export_targets(esdf_server HAS_LIBRARY_TARGET)
+
+install(
+  TARGETS esdf_server
+  EXPORT esdf_server
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+#######################################
+## Tsdf server node
+#######################################
 add_executable(tsdf_server_node 
   src/tsdf_server.cpp
   src/tsdf_server_node.cpp
@@ -79,6 +107,31 @@ install(
   DESTINATION lib/${PROJECT_NAME}
 )
 
+#######################################
+## Esdf server node
+#######################################
+add_executable(esdf_server_node 
+  src/tsdf_server.cpp
+  src/esdf_server.cpp
+  src/esdf_server_node.cpp
+)
+
+ament_target_dependencies(esdf_server_node ${dependencies})
+target_include_directories(esdf_server_node
+  PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:include>"
+)
+
+install(
+  TARGETS esdf_server_node
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+
+#######################################
+## install directories
+#######################################
 install(
   DIRECTORY include/
   DESTINATION include

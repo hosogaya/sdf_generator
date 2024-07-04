@@ -8,6 +8,8 @@
 #include <sdf_generator/point_cloud/point_cloud_processor.hpp>
 #include <sdf_generator/point_cloud/lidar_processor.hpp>
 #include <sdf_generator/mesh/mesh_integrator.hpp>
+#include <sdf_generator/core/esdf_map.hpp>
+#include <sdf_generator/integrator/esdf_integrator.hpp>
 
 namespace sdf_generator
 {
@@ -324,6 +326,106 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
             integrator_config.max_nubmer_of_rays_ = max_number_of_rays;
 
     return integrator_config;
+}
+
+inline EsdfMap::Config getEsdfMapConfig(
+    const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
+    const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
+)
+{
+    EsdfMap::Config config;
+
+    double d_value = config.esdf_voxel_size_;
+    if (getDoubleParam("tsdf_voxel_size", node_logger, node_params, d_value))
+        config.esdf_voxel_size_ = d_value;
+    
+    int i_value = config.esdf_voxels_per_side;
+    if (getIntParam("tsdf_voxels_per_side", node_logger, node_params, i_value))
+        config.esdf_voxels_per_side = i_value;
+
+    return config;
+}
+
+inline EsdfIntegrator::Config getEsdfIntegratorConfig(
+    const rclcpp::node_interfaces::NodeLoggingInterface::SharedPtr& node_logger, 
+    const rclcpp::node_interfaces::NodeParametersInterface::SharedPtr& node_params
+)
+{
+    EsdfIntegrator::Config config;
+    // buffers
+    double d_value;
+    int i_value;
+    bool b_value;
+
+    d_value = config.max_distance_;
+    if (getDoubleParam("esdf_max_distance", node_logger, node_params, d_value))
+        config.max_distance_ = d_value;
+
+    d_value = config.default_distance_;
+    if (getDoubleParam("esdf_default_distance", node_logger, node_params, d_value))
+        config.default_distance_ = d_value;
+
+    d_value = config.max_behind_surface_;
+    if (getDoubleParam("esdf_max_behind_surface", node_logger, node_params, d_value))
+        config.max_behind_surface_ = d_value;
+
+    d_value = config.band_distance_;
+    if (getDoubleParam("esdf_band_distance", node_logger, node_params, d_value))
+        config.band_distance_ = d_value;
+
+    d_value = config.occ_voxel_size_ratio_;
+    if (getDoubleParam("esdf_occ_voxel_size_ratio", node_logger, node_params, d_value))
+        config.occ_voxel_size_ratio_ = d_value;
+
+    d_value = config.min_weight_;
+    if (getDoubleParam("esdf_min_weight", node_logger, node_params, d_value))
+        config.min_weight_ = d_value;
+
+    i_value = config.num_buckets_;
+    if (getIntParam("esdf_num_buckets", node_logger, node_params, i_value))
+        config.num_buckets_ = i_value;
+
+    i_value = config.num_neighbor_;
+    if (getIntParam("esdf_num_neighbor", node_logger, node_params, i_value))
+        config.num_neighbor_ = i_value;
+
+    b_value = config.patch_on_;
+    if (getBoolParam("esdf_patch_on", node_logger, node_params, b_value))
+        config.patch_on_ = b_value;
+
+    b_value = config.early_break_;
+    if (getBoolParam("esdf_early_break", node_logger, node_params, b_value))
+        config.early_break_ = b_value;
+
+    b_value = config.finer_esdf_on_;
+    if (getBoolParam("esdf_finer_esdf_on", node_logger, node_params, b_value))
+        config.finer_esdf_on_ = b_value;
+
+    b_value = config.fixed_band_esdf_on_;
+    if (getBoolParam("esdf_fixed_band_esdf_on", node_logger, node_params, b_value))
+        config.fixed_band_esdf_on_ = b_value;
+
+    d_value = config.gradient_sign_;
+    if (getDoubleParam("esdf_gradient_sign", node_logger, node_params, d_value))
+        config.gradient_sign_ = d_value >=0.0 ? 1.0 : -1.0;
+    
+    b_value = config.allocate_tsdf_in_range_;
+    if (getBoolParam("esdf_allocate_tsdf_in_range", node_logger, node_params, b_value))
+        config.allocate_tsdf_in_range_ = b_value;
+    
+    i_value = config.range_boundary_offset_.x();
+    if (getIntParam("esdf_range_boundary_offset_x", node_logger, node_params, i_value))
+        config.range_boundary_offset_.x() = i_value;
+
+    i_value = config.range_boundary_offset_.y();
+    if (getIntParam("esdf_range_boundary_offset_y", node_logger, node_params, i_value))
+        config.range_boundary_offset_.y() = i_value;
+
+    i_value = config.range_boundary_offset_.z();
+    if (getIntParam("esdf_range_boundary_offset_z", node_logger, node_params, i_value))
+        config.range_boundary_offset_.z() = i_value;
+
+    return config;
 }
 
 inline PointCloudProcessor::CommonConfig getPointCloudProcessorCommonConfig(

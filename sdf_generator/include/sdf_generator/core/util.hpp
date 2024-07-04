@@ -26,6 +26,38 @@ inline IndexType calGridIndex(const Point& scaled_point)
     );
 }
 
+inline GlobalIndex calGlobalVoxelIndex(
+    const BlockIndex& block_index, const VoxelIndex& voxel_index, int voxels_per_side
+)
+{
+    return GlobalIndex(
+        block_index.cast<LongIndexElement>()*voxels_per_side
+        + voxel_index.cast<LongIndexElement>()
+    );
+}
+
+// assume voxels per side is power of 2
+inline VoxelIndex calLocalVoxelIndex(const GlobalIndex& global_index, const int voxels_per_side)
+{
+    constexpr int offset = 1 << (8 * sizeof(IndexElement) - 1);
+    return VoxelIndex(
+        (global_index.x() + offset) & (voxels_per_side - 1),
+        (global_index.y() + offset) & (voxels_per_side - 1),
+        (global_index.z() + offset) & (voxels_per_side - 1)
+    );
+}
+
+inline BlockIndex calBlockIndex(
+    const GlobalIndex& global_voxel_index, Scalar voxels_per_side_inv
+)
+{
+    return BlockIndex(
+        std::floor(static_cast<Scalar>(global_voxel_index.x()*voxels_per_side_inv)),
+        std::floor(static_cast<Scalar>(global_voxel_index.y()*voxels_per_side_inv)),
+        std::floor(static_cast<Scalar>(global_voxel_index.z()*voxels_per_side_inv))
+    );
+}
+
 template <typename IndexType>
 inline Point calCenterPoint(const IndexType& index, Scalar voxel_size)
 {
@@ -36,15 +68,6 @@ inline Point calCenterPoint(const IndexType& index, Scalar voxel_size)
     );
 }
 
-inline BlockIndex calBlockIndex(const GlobalIndex& global_voxel_index, Scalar voxels_per_side_inv)
-{
-    return BlockIndex(
-        std::floor(static_cast<Scalar>(global_voxel_index.x())*voxels_per_side_inv), 
-        std::floor(static_cast<Scalar>(global_voxel_index.y())*voxels_per_side_inv), 
-        std::floor(static_cast<Scalar>(global_voxel_index.z())*voxels_per_side_inv) 
-    );
-}
-
 template <typename IndexType>
 inline Point calOrigin(const IndexType& index, Scalar grid_size)
 {
@@ -52,16 +75,6 @@ inline Point calOrigin(const IndexType& index, Scalar grid_size)
         static_cast<Scalar>(index.x())*grid_size,
         static_cast<Scalar>(index.y())*grid_size,
         static_cast<Scalar>(index.z())*grid_size
-    );
-}
-
-inline VoxelIndex calLocalVoxelIndex(const GlobalIndex& voxel_index, const int voxels_per_side)
-{
-    constexpr int offset = 1 << (8*sizeof(IndexElement) - 1);
-    return VoxelIndex(
-        (voxel_index.x() + offset) & (voxels_per_side - 1),
-        (voxel_index.y() + offset) & (voxels_per_side - 1),
-        (voxel_index.z() + offset) & (voxels_per_side - 1)
     );
 }
 

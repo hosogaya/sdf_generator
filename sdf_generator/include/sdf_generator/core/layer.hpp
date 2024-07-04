@@ -94,6 +94,35 @@ public:
         }
     }
 
+    typename BlockType::Ptr allocateNewBlock(const BlockIndex& index)
+    {
+        auto insert_status = block_map_.emplace(
+            index, std::make_shared<BlockType>(
+                voxels_per_side_, voxel_size_, 
+                calOrigin(index, block_size_)
+            )
+        );
+        return insert_status.first->second;
+    }
+
+    typename BlockType::Ptr getBlockPtrWithAllocation(const BlockIndex& index)
+    {
+        typename BlockHashMap::iterator it = block_map_.find(index);
+        if (it != block_map_.end()) return it->second;
+        
+        return allocateNewBlock(index);
+    }
+
+    inline VoxelType* getVoxelPtr(const GlobalIndex& global_index) 
+    {
+        const BlockIndex block_index = calBlockIndex(global_index, voxels_per_side_inv_);
+        if (!hasBlock(block_index)) return nullptr;
+        const VoxelIndex local_voxel_index = calLocalVoxelIndex(global_index, voxels_per_side_);
+        typename BlockType::Ptr block_ptr = this->getBlockPtr(block_index);
+        
+        return &(block_ptr->getVoxel(local_voxel_index));
+    }
+
     bool hasBlock(const BlockIndex& block_index) const
     {
         return block_map_.count(block_index) > 0;

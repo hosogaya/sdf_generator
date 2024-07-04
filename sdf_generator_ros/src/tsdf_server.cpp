@@ -8,8 +8,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     /**
      * Publisher and Subscriber
     */
-    pub_layer_ = create_publisher<sdf_msgs::msg::Layer>(
-        "output/layer", 1
+    pub_layer_ = create_publisher<sdf_msgs::msg::TsdfLayer>(
+        "output/tsdf_layer", 1
     );
     pub_mesh_ = create_publisher<sdf_msgs::msg::Mesh>(
         "output/mesh", 1
@@ -198,7 +198,7 @@ void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniqueP
     tsdf_integrator_->integratePointArray(tf_global2current, points_c, normals_c, colors, false);
 
     // publish
-    sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
+    sdf_msgs::msg::TsdfLayer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
     RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
     pub_layer_->publish(std::move(layer_msg));
 }

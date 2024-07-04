@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdf_generator/core/type.hpp>
+#include <unordered_set>
 
 namespace sdf_generator
 {
@@ -56,5 +57,10 @@ struct LongIndexHashMapType
                     Eigen::aligned_allocator<std::pair<const LongIndex, ValueType>>
                 >;
 };
+
+using LongIndexSet = std::unordered_set<
+    LongIndex, LongIndexHash, std::equal_to<LongIndex>,
+    Eigen::aligned_allocator<LongIndex> >;
+
 
 }

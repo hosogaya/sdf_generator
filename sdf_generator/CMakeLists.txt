@@ -19,6 +19,9 @@ set (sources
     src/integrator/merge_tsdf_integrator.cpp
     src/integrator/thread_safe_index.cpp
     src/integrator/tsdf_integrator.cpp
+    src/integrator/esdf_integrator.cpp
+    src/integrator/neighbor_tools.cpp
+    src/integrator/neighbor_tools_24.cpp
     src/interpolator/util.cpp
     src/point_cloud/point_cloud_processor.cpp
     src/point_cloud/lidar_processor.cpp

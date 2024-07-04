@@ -1,15 +1,16 @@
 #pragma once
 
 #include <sdf_generator/core/layer.hpp>
-#include <sdf_msgs/msg/layer.hpp>
+#include <sdf_msgs/msg/tsdf_layer.hpp>
 #include <sdf_generator/mesh/mesh_layer.hpp>
 #include <sdf_msgs/msg/mesh.hpp>
+#include <sdf_msgs/msg/esdf_layer.hpp>
 
 namespace sdf_generator
 {
-inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
+inline sdf_msgs::msg::TsdfLayer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
 {
-    sdf_msgs::msg::Layer::UniquePtr msg(new sdf_msgs::msg::Layer);
+    sdf_msgs::msg::TsdfLayer::UniquePtr msg(new sdf_msgs::msg::TsdfLayer);
 
     BlockIndexList indexes;
     layer->getAllAllocatedBlocks(indexes);
@@ -20,7 +21,7 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
 
     for (const auto& index: indexes)
     {
-        sdf_msgs::msg::Block block_msg;
+        sdf_msgs::msg::TsdfBlock block_msg;
         auto block_ptr = layer->getBlockPtr(index);
         
         block_msg.x_index = index.x();
@@ -31,7 +32,7 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
         for (int i=0; i<voxels_num; ++i)
         {
             const auto& voxel = block_ptr->getConstVoxel(i);
-            sdf_msgs::msg::Voxel voxel_msg;
+            sdf_msgs::msg::TsdfVoxel voxel_msg;
             if (voxel.occupied_)
             {
                 voxel_msg.has_data = true;
@@ -52,7 +53,53 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr layer)
     return msg;
 }
 
-inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::Layer& msg)
+inline sdf_msgs::msg::EsdfLayer::UniquePtr toMsg(const Layer<EsdfVoxel>::Ptr esdf_layer, const Layer<TsdfVoxel>::Ptr tsdf_layer)
+{
+    sdf_msgs::msg::EsdfLayer::UniquePtr msg(new sdf_msgs::msg::EsdfLayer);
+    BlockIndexList indices;
+    tsdf_layer->getAllAllocatedBlocks(indices);
+
+    msg->voxel_size = tsdf_layer->voxelSize();
+    msg->voxels_per_side = tsdf_layer->voxelsPerSide();
+    msg->blocks.reserve(indices.size());
+
+    for (const auto& index: indices)
+    {
+        sdf_msgs::msg::EsdfBlock block_msg;
+        auto tsdf_block_ptr = tsdf_layer->getBlockConstPtr(index);
+        auto esdf_block_ptr = esdf_layer->getBlockConstPtr(index);
+        block_msg.x_index = index.x();
+        block_msg.y_index = index.y();
+        block_msg.z_index = index.z();
+
+        block_msg.voxels.reserve(tsdf_block_ptr->numVoxels());
+
+        for (size_t i=0; i<block_msg.voxels.size(); ++i)
+        {
+            const auto& esdf_voxel = esdf_block_ptr->getConstVoxel(i);
+            sdf_msgs::msg::EsdfVoxel voxel_msg;
+            if (esdf_voxel.head_idx_(0) != UNDEF)
+            {
+                const auto& tsdf_voxel = tsdf_layer->getVoxelPtr(esdf_voxel.head_idx_);
+                voxel_msg.distance = esdf_voxel.distance_;
+                voxel_msg.gradient.x = tsdf_voxel->gradient_.x();
+                voxel_msg.gradient.y = tsdf_voxel->gradient_.y();
+                voxel_msg.gradient.z = tsdf_voxel->gradient_.z();
+                voxel_msg.behind = esdf_voxel.behind_;
+                voxel_msg.has_data = true;
+            }
+            else 
+            {
+                voxel_msg.has_data = false;
+            }
+            block_msg.voxels.push_back(voxel_msg);
+        }
+        msg->blocks.push_back(block_msg);
+    }
+    return msg;
+}
+
+inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::TsdfLayer& msg)
 {
     Layer<TsdfVoxel>::Ptr layer = std::make_shared<Layer<TsdfVoxel>>(msg.voxel_size, msg.voxels_per_side);
 

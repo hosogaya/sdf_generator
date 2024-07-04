@@ -1,0 +1,22 @@
+esdf_server:
+  ros__parameters:
+    publish_esdf_layer: true
+    esdf_publish_hz: 1.0
+    esdf_max_distance: 10.0 # not used
+    esdf_default_distance: 10.0 # >0 initial euclidian distance
+    esdf_max_behind_surface: 1.0 # >0 initial euclidian distance if the voxel is behind surface
+    esdf_band_distance: 1.0 # >0 if the distance is smaller than this value, the voxel is fixed
+    esdf_occ_voxel_size_ratio: 0.865 # When judge a voxel is occupied or not, 
+                                     # the threshold of TSDF distance is occ_voxel_size_ratio * voxel size
+    esdf_min_weight: 0.000001 # If the tsdf weight is under the this value, the voxel is not observed.
+    esdf_num_buckets: 20 # Number of bucketed priority queue. 
+    esdf_num_neighbor: 24 # only support 24
+    esdf_patch_on: true # true: high accuracy. false: Fast execution
+    esdf_early_break: false # true: Fast execution. false: high accuracy
+    esdf_finer_esdf_on: false # true: calculate inner voxel distance from the voxel center to the surface
+    esdf_fixed_band_esdf_on: false # use a fixed band for esdf to directly copy the tsdf value
+    esdf_gradient_sign: 1.0 # 1.0 or -1.0
+    esdf_allocate_tsdf_in_range: false # allocate tsdf voxel in range boundray
+    esdf_range_boundary_offset_x: 10 # Local map boundary size (unit: voxel)
+    esdf_range_boundary_offset_y: 10 #
+    esdf_range_boundary_offset_z: 5 #
