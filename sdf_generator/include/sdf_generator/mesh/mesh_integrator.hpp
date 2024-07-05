@@ -114,6 +114,7 @@ public:
     virtual void updateMeshForBlock(const BlockIndex& block_index)
     {
         Mesh::Ptr mesh = mesh_layer_->getMeshPtr(block_index);
+        mesh->clear();
 
         // This block should already exist, otherwise it makes no sense to update
         // the mesh for it. ;)

@@ -58,7 +58,8 @@ public:
         int clear_checks_every_n_frames_ = 1;
         Scalar max_integration_time_s_ = std::numeric_limits<Scalar>::max();
 
-        size_t max_nubmer_of_rays_ = 1e4;
+        size_t max_ray_through_step_num_ = 100;
+        bool use_weight_clear_ = false;
     };
 
     TsdfIntegratorBase(const Config& config, Layer<TsdfVoxel>::Ptr layer);

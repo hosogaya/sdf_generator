@@ -89,7 +89,7 @@ public:
             next_index += 3;
             table_col += 3;
         }
-        // std::cout << "[meshCube] teh mesh vertices size: " << mesh->vertices_.size() << std::endl;
+        // std::cout << "[meshCube] the mesh vertices size: " << mesh->vertices_.size() << std::endl;
     }
 
     // if a bit takes 1, it takes minus sdf value

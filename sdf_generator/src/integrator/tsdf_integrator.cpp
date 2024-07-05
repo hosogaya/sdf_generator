@@ -170,7 +170,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
         updateTsdfVoxelValue(tsdf_voxel, distance, weight, &color);
 
         // hosogaya 
-        tsdf_voxel.ray_through_ = false;
+        if (config_.use_weight_clear_) tsdf_voxel.ray_through_ = false;
     }
 
     // std::cout << "[updateTsdfVoxel] The distance: " << tsdf_voxel.distance_ << ", The weight: " << tsdf_voxel.weight_ << std::endl;
@@ -268,6 +268,8 @@ Scalar TsdfIntegratorBase::getVoxelWeight(const Point& point_c) const
 
 void TsdfIntegratorBase::dropOffWeightNotObserved()
 {
+    if (!config_.use_weight_clear_) return;
+
     BlockIndexList block_indices;
     layer_->getAllUpdatedBlocks(Update::kMap, block_indices);
     for (const auto& block_index : block_indices)
@@ -283,13 +285,11 @@ void TsdfIntegratorBase::dropOffWeightNotObserved()
             if (voxel.ray_through_)
             {
                 ++voxel.ray_through_step_num_;
-                if (voxel.ray_through_step_num_ > config_.max_nubmer_of_rays_ && voxel.weight_ > kWeightEpsilon)
+                if (voxel.ray_through_step_num_ > config_.max_ray_through_step_num_ && voxel.weight_ > kWeightEpsilon)
                 {
                     // clear the weight
                     voxel.weight_ = 0.0;
                     voxel.ray_through_step_num_ = 0;
-
-                    std::cout << "[dropOffWeightNotObserved] clear the weight" << std::endl;
                 }
             }
             else {

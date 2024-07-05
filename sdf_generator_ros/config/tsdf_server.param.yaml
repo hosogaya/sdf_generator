@@ -35,7 +35,8 @@ tsdf_server:
     normal_available: true 
     reliable_band_ratio: 1.0 # point that its distance form boundary is smaller than (truncation_distance*reliable_band_ratio) is considered thier normal. 
     reliable_normal_ratio_thre: 0.1 # point that the angle between its ray and normal is smaller than this value is used for updation. 
-    max_number_of_rays: 30
+    max_ray_through_step_num: 30 # If there is a voxel that it does not reflect no ray, but at least one ray through it while consecutive <max_ray_through_step_num> times, then, voxel weight is cleared.
+    use_weight_clear: True # 
 
     #　sensor
     sensor_image_width: 640

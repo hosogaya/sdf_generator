@@ -20,6 +20,7 @@ inline bool getBoolParam(
     bool& value
 )
 {
+    RCLCPP_INFO(node_logger->get_logger(), "Read %s", param_name.c_str());
     if (!node_params->has_parameter(param_name))
     {
         rcl_interfaces::msg::ParameterDescriptor desc;
@@ -65,6 +66,7 @@ inline bool getStringParam(
     std::string& value
 )
 {
+    RCLCPP_INFO(node_logger->get_logger(), "Read %s", param_name.c_str());
     if (!node_params->has_parameter(param_name))
     {
         rcl_interfaces::msg::ParameterDescriptor desc;
@@ -109,6 +111,7 @@ inline bool getIntParam(
     int& value
 )
 {
+    RCLCPP_INFO(node_logger->get_logger(), "Read %s", param_name.c_str());
     if (!node_params->has_parameter(param_name))
     {
         rcl_interfaces::msg::ParameterDescriptor desc;
@@ -320,10 +323,14 @@ inline TsdfIntegratorBase::Config getTsdfIntegratorConfig(
     if (getDoubleParam("reliable_normal_ratio_thre", node_logger, node_params, reliable_normal_ratio_thre))
         integrator_config.reliable_normal_ratio_thre_ = reliable_normal_ratio_thre;
 
-    int max_number_of_rays = integrator_config.max_nubmer_of_rays_;
-    if (getIntParam("max_number_of_rays", node_logger, node_params, max_number_of_rays))
-        if (max_number_of_rays > 0) 
-            integrator_config.max_nubmer_of_rays_ = max_number_of_rays;
+    int max_ray_through_step_num = integrator_config.max_ray_through_step_num_;
+    if (getIntParam("max_ray_through_step_num", node_logger, node_params, max_ray_through_step_num))
+        if (max_ray_through_step_num > 0) 
+            integrator_config.max_ray_through_step_num_ = max_ray_through_step_num;
+
+    bool use_weight_clear = integrator_config.use_weight_clear_;
+    if (getBoolParam("use_weight_clear", node_logger, node_params, use_weight_clear))
+        integrator_config.use_weight_clear_ = use_weight_clear;
 
     return integrator_config;
 }
