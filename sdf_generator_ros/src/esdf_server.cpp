@@ -31,9 +31,12 @@ void EsdfServer::esdfTimerCallback()
 {
     if (tsdf_map_->getTsdfLayerConstPtr()->blockNum() > 0)
     {
+        RCLCPP_INFO(get_logger(), "[esdfTimerCallback] updating the esdf layer");
         bool clear_updated_flag_esdf = true;
         esdf_integrator_->updateFromTsdfLayer(clear_updated_flag_esdf);
         sdf_msgs::msg::EsdfLayer::UniquePtr msg = toMsg(esdf_map_->getEsdfLayerPtr(), tsdf_map_->getTsdfLayerPtr());
+
+        RCLCPP_INFO_STREAM(get_logger(), "[esdfTimerCallback] msg block size: " << msg->blocks.size());
         pub_esdf_layer_->publish(std::move(msg));
     }
 }

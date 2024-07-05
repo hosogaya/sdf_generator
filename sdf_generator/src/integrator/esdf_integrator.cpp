@@ -1,12 +1,13 @@
 #include <sdf_generator/integrator/esdf_integrator.hpp>
+#include <iostream>
 
 namespace sdf_generator
 {
 EsdfIntegrator::EsdfIntegrator(
-    const Config coinfg, typename Layer<TsdfVoxel>::Ptr tsdf_layer, 
+    const Config config, typename Layer<TsdfVoxel>::Ptr tsdf_layer, 
     typename Layer<EsdfVoxel>::Ptr esdf_layer
 )
-: config_(config_), tsdf_layer_(tsdf_layer), esdf_layer_(esdf_layer)
+: config_(config), tsdf_layer_(tsdf_layer), esdf_layer_(esdf_layer)
 {
     esdf_voxels_per_side_ = esdf_layer_->voxelsPerSide();
     esdf_voxel_size_ = esdf_layer->voxelSize();
@@ -47,7 +48,7 @@ void EsdfIntegrator::updateFromTsdfBlocks(const BlockIndexList& tsdf_blocks)
         // Block indices are the same across all layers.
         Block<EsdfVoxel>::Ptr esdf_block_ptr = esdf_layer_->getBlockPtrWithAllocation(block_index);
         esdf_block_ptr->setUpdatedAll();
-    
+
         const size_t num_voxels_per_block = tsdf_block_ptr->numVoxels();
         for (size_t linear_index=0; linear_index<num_voxels_per_block; ++linear_index)
         {
@@ -266,11 +267,13 @@ void EsdfIntegrator::updateESDF()
      * distance would be fixed and it would act as a seed for further updating
      */
 
+    std::cout << "[updateESDF] insert list size: " << delete_list_.size() << std::endl;
     // initialization
     while (!insert_list_.empty())
     {
         GlobalIndex cur_voxel_index(insert_list_.front());
         insert_list_.erase(insert_list_.begin());
+
 
         // delete previous link & create a new linkded-list
         EsdfVoxel* cur_voxel = esdf_layer_->getVoxelPtr(cur_voxel_index);
@@ -279,12 +282,15 @@ void EsdfIntegrator::updateESDF()
             EsdfVoxel* coc_voxel = esdf_layer_->getVoxelPtr(cur_voxel->coc_idx_);
             deleteFromList(coc_voxel, cur_voxel);
         }
+
         cur_voxel->raw_distance_ = 0.0f;
         cur_voxel->coc_idx_ = cur_voxel_index;
         insertIntoList(cur_voxel, cur_voxel);
         update_queue_.push(cur_voxel_index, 0.0f);
+
     }
 
+    std::cout << "[updateESDF] delete list size: " << delete_list_.size() << std::endl;
     // increasing update
     while (!delete_list_.empty())
     {
@@ -355,6 +361,7 @@ void EsdfIntegrator::updateESDF()
         cur_voxel->head_idx_ << UNDEF, UNDEF, UNDEF;
     }
 
+    std::cout << "[updateESDF] update_queue size: " << update_queue_.size() << std::endl;
     // Esdf decreasing unupdating (BFS based on priority queue) 
     int updated_count = 0;
     int patch_count = 0;
@@ -478,6 +485,8 @@ void EsdfIntegrator::updateESDF()
             }
         }
     }
+
+    std::cout << "[updatedESdf] update count: " << total_updated_count_ << std::endl;
 }
 
 

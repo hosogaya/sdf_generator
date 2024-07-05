@@ -88,6 +88,7 @@ void TsdfIntegratorBase::updateTsdfVoxel(
     const GlobalIndex& global_voxel_index, const Color& color,
     const Scalar init_weight, TsdfVoxel& tsdf_voxel)
 {
+    tsdf_voxel.updated_ = true;
     const Point voxel_center = calCenterPoint(global_voxel_index, voxel_size_);
     Scalar distance = calDistance(origin, point_g, voxel_center);
     
@@ -167,7 +168,9 @@ void TsdfIntegratorBase::updateTsdfVoxel(
             updateTsdfVoxelGradient(tsdf_voxel, normal_g, weight);
 
         updateTsdfVoxelValue(tsdf_voxel, distance, weight, &color);
-        tsdf_voxel.occupied_ = true;
+
+        // hosogaya 
+        tsdf_voxel.ray_through_ = false;
     }
 
     // std::cout << "[updateTsdfVoxel] The distance: " << tsdf_voxel.distance_ << ", The weight: " << tsdf_voxel.weight_ << std::endl;
@@ -230,18 +233,18 @@ Scalar TsdfIntegratorBase::calVoxelWeight(
     else if (!config_.use_const_weight_) weight /= std::pow(point_c.norm(), config_.weight_reduction_exp_);
 
     // Part 2. weight drop-off
-    // if (config_.use_weight_dropoff_)
-    // {
-    //     const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon_ > 0.0f
-    //                                   ? config_.weight_dropoff_epsilon_
-    //                                   : config_.weight_dropoff_epsilon_*-voxel_size_;
-    //     if (distance < -dropoff_epsilon)
-    //     {
-    //         weight *= (config_.default_truncation_distance_ + distance)
-    //                 / (config_.default_truncation_distance_ - dropoff_epsilon);
-    //         weight = std::max(weight, 0.0f);
-    //     }
-    // }
+    if (config_.use_weight_dropoff_)
+    {
+        const Scalar dropoff_epsilon = config_.weight_dropoff_epsilon_ > 0.0f
+                                      ? config_.weight_dropoff_epsilon_
+                                      : config_.weight_dropoff_epsilon_*-voxel_size_;
+        if (distance < -dropoff_epsilon)
+        {
+            weight *= (config_.default_truncation_distance_ + distance)
+                    / (config_.default_truncation_distance_ - dropoff_epsilon);
+            weight = std::max(weight, 0.0f);
+        }
+    }
 
     // Part 3. deal with sparse point cloud
     if (config_.use_sparsity_compensation_factor_)
@@ -266,44 +269,32 @@ Scalar TsdfIntegratorBase::getVoxelWeight(const Point& point_c) const
 void TsdfIntegratorBase::dropOffWeightNotObserved()
 {
     BlockIndexList block_indices;
-    layer_->getAllUpdatedBlocks(Update::kOccupied, block_indices);
-    if (config_.use_weight_dropoff_ && config_.weight_dropoff_epsilon_ > 0.0)
+    layer_->getAllUpdatedBlocks(Update::kMap, block_indices);
+    for (const auto& block_index : block_indices)
     {
-        for (const auto& block_index : block_indices)
+        typename Block<TsdfVoxel>::Ptr block_ptr = layer_->getBlockPtr(block_index);
+
+        for (size_t i=0; i<block_ptr->numVoxels(); ++i)
         {
-            typename Block<TsdfVoxel>::Ptr block_ptr = layer_->getBlockPtr(block_index);
+            auto& voxel = block_ptr->getVoxel(i);
+            if (!voxel.updated_) continue;
 
-            block_ptr->setUpdated(Update::kOccupied, false);
-            for (size_t i=0; i<block_ptr->numVoxels(); ++i)
+            voxel.updated_ = false;
+            if (voxel.ray_through_)
             {
-                auto& voxel = block_ptr->getVoxel(i);
+                ++voxel.ray_through_step_num_;
+                if (voxel.ray_through_step_num_ > config_.max_nubmer_of_rays_ && voxel.weight_ > kWeightEpsilon)
+                {
+                    // clear the weight
+                    voxel.weight_ = 0.0;
+                    voxel.ray_through_step_num_ = 0;
 
-                if (voxel.occupied_) 
-                {
-                    voxel.probability_ = std::max(0.0f, std::min(voxel.probability_+1.0f, 10.0f));
-                    voxel.occupied_ = false;
-                }
-                else 
-                {
-                    voxel.probability_ = std::max(0.0f, std::min(voxel.probability_ - config_.weight_dropoff_epsilon_, 10.0f));
-                    // voxel.weight_ = std::max(0.0f, voxel.weight_-config_.weight_dropoff_epsilon_);
+                    std::cout << "[dropOffWeightNotObserved] clear the weight" << std::endl;
                 }
             }
-        }
-    }
-    else 
-    {
-        for (const auto& block_index : block_indices)
-        {
-            typename Block<TsdfVoxel>::Ptr block_ptr = layer_->getBlockPtr(block_index);
-
-            block_ptr->setUpdated(Update::kOccupied, false);
-
-            for (size_t i=0; i<block_ptr->numVoxels(); ++i)
-            {
-                auto& voxel = block_ptr->getVoxel(i);
-                voxel.occupied_ = false;
-                voxel.probability_ = 10.0;
+            else {
+                voxel.ray_through_step_num_ = 0;
+                voxel.ray_through_ = true;
             }
         }
     }

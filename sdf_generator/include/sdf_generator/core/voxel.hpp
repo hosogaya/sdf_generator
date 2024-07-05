@@ -11,8 +11,9 @@ struct TsdfVoxel
     Scalar weight_ = 0.0;
     Ray gradient_ = Ray::Zero();
     Color color_;
-    Scalar probability_ = 0.0; // probability of existance
-    size_t number_of_rays_ = 0;
+    bool updated_ = false;
+    bool ray_through_ = true;
+    size_t ray_through_step_num_ = 0;
     bool occupied_ = false;
     bool isBehind() const {return distance_ < 0.0;}
 };

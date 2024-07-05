@@ -13,9 +13,9 @@ tsdf_server:
     voxel_carving_enabled: true
     max_ray_length_m: 5.0
     min_ray_length_m: 0.1
-    max_weight: 10.0
+    max_weight: 1000.0
     use_const_weight: True # If this takes false, the longer the distance from sensor, the smaller the weight is. 
-    use_weight_dropoff: True
+    use_weight_dropoff: False
     allow_clear: False # If it takes False, only voxels of neighbors of a point are updated
     start_voxel_subsampling_factor: 2.0 # only used for fast integrator (not implemented)
     max_consecutive_ray_collisions: 2 # only used for fast integrator (not implemented)
@@ -50,7 +50,7 @@ tsdf_server:
     pitch_fov_rad_range: 1.57
 
     # mesh
-    mesh_publish_hz: 0.5
+    mesh_publish_hz: 0.1
     mesh_color_mode: color # [color, height, normals, gray]
-    mesh_min_weight: 2.0 # (0.0, 1.0) the voxel whose probability is smaller than this value is ignored. 
+    mesh_min_weight: 4.0 # (0.0, 1.0) the voxel whose probability is smaller than this value is ignored. 
     mesh_use_color: true

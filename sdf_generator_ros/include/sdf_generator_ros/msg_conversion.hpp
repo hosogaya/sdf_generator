@@ -19,6 +19,7 @@ inline sdf_msgs::msg::TsdfLayer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr lay
     msg->voxels_per_side = layer->voxelsPerSide();
     msg->blocks.reserve(indexes.size());
 
+    size_t valid_voxel_num = 0;
     for (const auto& index: indexes)
     {
         sdf_msgs::msg::TsdfBlock block_msg;
@@ -45,11 +46,14 @@ inline sdf_msgs::msg::TsdfLayer::UniquePtr toMsg(const Layer<TsdfVoxel>::Ptr lay
                 voxel_msg.color.r = voxel.color_.r_;
                 voxel_msg.color.g = voxel.color_.g_;
                 voxel_msg.color.b = voxel.color_.b_;
+                ++valid_voxel_num;
             }
             block_msg.voxels.push_back(voxel_msg);
         }
         msg->blocks.push_back(block_msg);
     }
+
+    std::cout << "[toMsdf<TsdfLayer>] voxel num: " << valid_voxel_num << std::endl;
     return msg;
 }
 
@@ -63,6 +67,7 @@ inline sdf_msgs::msg::EsdfLayer::UniquePtr toMsg(const Layer<EsdfVoxel>::Ptr esd
     msg->voxels_per_side = tsdf_layer->voxelsPerSide();
     msg->blocks.reserve(indices.size());
 
+    size_t valid_voxel_num = 0;
     for (const auto& index: indices)
     {
         sdf_msgs::msg::EsdfBlock block_msg;
@@ -74,19 +79,20 @@ inline sdf_msgs::msg::EsdfLayer::UniquePtr toMsg(const Layer<EsdfVoxel>::Ptr esd
 
         block_msg.voxels.reserve(tsdf_block_ptr->numVoxels());
 
-        for (size_t i=0; i<block_msg.voxels.size(); ++i)
+        for (size_t i=0; i<esdf_block_ptr->numVoxels(); ++i)
         {
             const auto& esdf_voxel = esdf_block_ptr->getConstVoxel(i);
             sdf_msgs::msg::EsdfVoxel voxel_msg;
-            if (esdf_voxel.head_idx_(0) != UNDEF)
+            if (esdf_voxel.observed_)
             {
-                const auto& tsdf_voxel = tsdf_layer->getVoxelPtr(esdf_voxel.head_idx_);
+                const auto& tsdf_voxel = tsdf_block_ptr->getConstVoxel(i);
                 voxel_msg.distance = esdf_voxel.distance_;
-                voxel_msg.gradient.x = tsdf_voxel->gradient_.x();
-                voxel_msg.gradient.y = tsdf_voxel->gradient_.y();
-                voxel_msg.gradient.z = tsdf_voxel->gradient_.z();
+                voxel_msg.gradient.x = tsdf_voxel.gradient_.x();
+                voxel_msg.gradient.y = tsdf_voxel.gradient_.y();
+                voxel_msg.gradient.z = tsdf_voxel.gradient_.z();
                 voxel_msg.behind = esdf_voxel.behind_;
                 voxel_msg.has_data = true;
+                ++valid_voxel_num;
             }
             else 
             {
@@ -96,6 +102,7 @@ inline sdf_msgs::msg::EsdfLayer::UniquePtr toMsg(const Layer<EsdfVoxel>::Ptr esd
         }
         msg->blocks.push_back(block_msg);
     }
+    std::cout << "[toMsdf<EsdfLayer>] valid_voxel_num: " << valid_voxel_num << std::endl;
     return msg;
 }
 

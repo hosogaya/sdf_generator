@@ -9,7 +9,7 @@ namespace sdf_generator
 
 namespace Update
 {
-    enum Status {kMap=0, kMesh, kEsdf, kOccupied, kCount};
+    enum Status {kMap=0, kMesh, kEsdf, kCount};
 }
 
 template <typename VoxelType>

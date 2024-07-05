@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sdf_generator/core/type.hpp>
+#include <iostream>
 
 namespace sdf_generator
 {
@@ -47,6 +48,7 @@ public:
         if (bucket_index < last_bucket_index_) last_bucket_index_ = bucket_index;
         
         buckets_[bucket_index].push(key);
+
         ++num_elements_;
     }
 
