@@ -290,6 +290,7 @@ void TsdfIntegratorBase::dropOffWeightNotObserved()
                     // clear the weight
                     voxel.weight_ = 0.0;
                     voxel.ray_through_step_num_ = 0;
+                    std::cout << "[dropOffWegihtNotObserved] claer weight" << std::endl;
                 }
             }
             else {

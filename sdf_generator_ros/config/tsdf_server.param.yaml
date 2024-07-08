@@ -36,7 +36,7 @@ tsdf_server:
     reliable_band_ratio: 1.0 # point that its distance form boundary is smaller than (truncation_distance*reliable_band_ratio) is considered thier normal. 
     reliable_normal_ratio_thre: 0.1 # point that the angle between its ray and normal is smaller than this value is used for updation. 
     max_ray_through_step_num: 30 # If there is a voxel that it does not reflect no ray, but at least one ray through it while consecutive <max_ray_through_step_num> times, then, voxel weight is cleared.
-    use_weight_clear: True # 
+    use_weight_clear: False # 
 
     #　sensor
     sensor_image_width: 640
@@ -51,7 +51,7 @@ tsdf_server:
     pitch_fov_rad_range: 1.57
 
     # mesh
-    mesh_publish_hz: 0.1
-    mesh_color_mode: color # [color, height, normals, gray]
-    mesh_min_weight: 4.0 # (0.0, 1.0) the voxel whose probability is smaller than this value is ignored. 
+    mesh_publish_hz: 1.0
+    mesh_color_mode: height # [color, height, normals, gray]
+    mesh_min_weight: 0.01 # (0.0, 1.0) the voxel whose probability is smaller than this value is ignored. 
     mesh_use_color: true
