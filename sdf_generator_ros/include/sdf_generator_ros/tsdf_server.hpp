@@ -46,10 +46,12 @@ protected:
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_point_cloud_;
     void pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniquePtr msg);
 
+    rclcpp::TimerBase::SharedPtr layer_timer_;
+    virtual void layerTimerCallback();
     rclcpp::TimerBase::SharedPtr mesh_timer_;
     void meshTimerCallback();
 
-    rclcpp::Publisher<sdf_msgs::msg::TsdfLayer>::SharedPtr pub_layer_;
+    rclcpp::Publisher<sdf_msgs::msg::Layer>::SharedPtr pub_layer_;
     rclcpp::Publisher<sdf_msgs::msg::Mesh>::SharedPtr pub_mesh_;
 
     bool getTransform(const std::string& target, const std::string& source, 

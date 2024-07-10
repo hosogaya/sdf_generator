@@ -8,8 +8,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     /**
      * Publisher and Subscriber
     */
-    pub_layer_ = create_publisher<sdf_msgs::msg::TsdfLayer>(
-        "output/tsdf_layer", 1
+    pub_layer_ = create_publisher<sdf_msgs::msg::Layer>(
+        "output/layer", 1
     );
     pub_mesh_ = create_publisher<sdf_msgs::msg::Mesh>(
         "output/mesh", 1
@@ -28,6 +28,7 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     sensor_frame_ = declare_parameter("sensor_frame", "sensor_frame");
     std::string color_map_method = declare_parameter("color_map_method", "rainbow");
     std::string sensor_type = declare_parameter("sensor_type", "lidar");
+    double layer_publish_hz = declare_parameter<double>("layer_publish_hz", 1.0);
     double mesh_publish_hz = declare_parameter<double>("mesh_publish_hz", 1.0);
     std::string mesh_color_mode_string = declare_parameter("mesh_color_mode", "color");
 
@@ -91,6 +92,8 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     tf_listener_.reset(new tf2_ros::TransformListener(*tf_buffer_));
 
     // timer
+    auto layer_dt = std::chrono::microseconds(int(1e6/layer_publish_hz));
+    layer_timer_ = create_wall_timer(layer_dt, std::bind(&TsdfServer::layerTimerCallback, this));
     auto mesh_dt = std::chrono::microseconds(int(1e6/mesh_publish_hz));
     mesh_timer_ = create_wall_timer(mesh_dt, std::bind(&TsdfServer::meshTimerCallback, this));
 
@@ -196,12 +199,15 @@ void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniqueP
 
     // integrating
     tsdf_integrator_->integratePointArray(tf_global2current, points_c, normals_c, colors, false);
+}
 
-    // publish
-    sdf_msgs::msg::TsdfLayer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
+void TsdfServer::layerTimerCallback()
+{
+    sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
     RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
     pub_layer_->publish(std::move(layer_msg));
 }
+
 
 bool TsdfServer::getTransform(const std::string& target, const std::string& source, 
                 const rclcpp::Time& sub_time, TransformMatrix<Scalar>& tf_mat)

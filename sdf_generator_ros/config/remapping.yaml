@@ -3,8 +3,8 @@ tsdf_server:
     input:
       point_cloud: "unilidar/cloud"
     output:
-      tsdf_layer: "tsdf_layer"
-      mesh: "tsdf_mesh"
+      layer: "layer"
+      mesh: "mesh"
 
 
 esdf_server:
@@ -12,6 +12,5 @@ esdf_server:
     input:
       point_cloud: "unilidar/cloud"
     output:
-      tsdf_layer: "tsdf_layer"
-      mesh: "tsdf_mesh"
-      esdf_layer: "esdf_layer"
+      layer: "layer"
+      mesh: "mesh"

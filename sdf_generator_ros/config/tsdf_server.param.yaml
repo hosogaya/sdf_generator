@@ -5,6 +5,8 @@ tsdf_server:
     color_map_method: grayscale # [grayscale, rainbow] If the point cloud does not have color value, the color is calculated with its intensity.
                                 # If the point cloud does not have intensity also, the color takes constant value.  
     sensor_type: lidar # [lidar]
+    layer_publish_hz: 1.0 #
+
     # map
     tsdf_voxel_size: 0.1
     tsdf_voxels_per_side: 8

@@ -28,7 +28,7 @@ def launch_setup(context, *args, **kwargs):
                 parameters=[param],
                 remappings=[
                     ("input/point_cloud", remap["input"]["point_cloud"]),
-                    ("output/tsdf_layer", remap["output"]["tsdf_layer"]),
+                    ("output/layer", remap["output"]["layer"]),
                     ("output/mesh", remap["output"]["mesh"])
                 ]
             ),

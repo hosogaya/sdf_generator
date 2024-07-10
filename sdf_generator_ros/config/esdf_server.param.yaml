@@ -1,7 +1,5 @@
 esdf_server:
   ros__parameters:
-    publish_esdf_layer: true
-    esdf_publish_hz: 1.0
     esdf_max_distance: 10.0 # not used
     esdf_default_distance: 10.0 # >0 initial euclidian distance
     esdf_max_behind_surface: 1.0 # >0 initial euclidian distance if the voxel is behind surface
