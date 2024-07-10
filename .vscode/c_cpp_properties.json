@@ -33,7 +33,6 @@
                 "/opt/ros/humble/include/rclcpp_components",
                 "/opt/ros/humble/include/class_loader",
                 "${workspaceFolder}/build/sdf_msgs/rosidl_generator_cpp",
-                "/usr/include/pcl-1.10",
                 "/opt/ros/humble/include/rviz_common",
                 "/usr/include/OGRE",
                 "/usr/include/x86_64-linux-gnu/qt5/QtGui",
