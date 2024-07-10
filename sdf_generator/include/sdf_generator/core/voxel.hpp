@@ -39,7 +39,6 @@ struct EsdfVoxel
     Scalar distance_ = 0.0;
     Scalar raw_distance_ = 0.0;
     bool observed_ = false;
-    Vector3 gradient_{0.0f, 0.0f, 0.0f};
 
     /**
      * Whether the voxel was copied from the TSDF (false) or created from a pose
