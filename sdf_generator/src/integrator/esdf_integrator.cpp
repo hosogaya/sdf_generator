@@ -267,7 +267,7 @@ void EsdfIntegrator::updateESDF()
      * distance would be fixed and it would act as a seed for further updating
      */
 
-    std::cout << "[updateESDF] insert list size: " << delete_list_.size() << std::endl;
+    // std::cout << "[updateESDF] insert list size: " << delete_list_.size() << std::endl;
     // initialization
     while (!insert_list_.empty())
     {
@@ -290,7 +290,7 @@ void EsdfIntegrator::updateESDF()
 
     }
 
-    std::cout << "[updateESDF] delete list size: " << delete_list_.size() << std::endl;
+    // std::cout << "[updateESDF] delete list size: " << delete_list_.size() << std::endl;
     // increasing update
     while (!delete_list_.empty())
     {
@@ -361,7 +361,7 @@ void EsdfIntegrator::updateESDF()
         cur_voxel->head_idx_ << UNDEF, UNDEF, UNDEF;
     }
 
-    std::cout << "[updateESDF] update_queue size: " << update_queue_.size() << std::endl;
+    // std::cout << "[updateESDF] update_queue size: " << update_queue_.size() << std::endl;
     // Esdf decreasing unupdating (BFS based on priority queue) 
     int updated_count = 0;
     int patch_count = 0;
@@ -486,7 +486,7 @@ void EsdfIntegrator::updateESDF()
         }
     }
 
-    std::cout << "[updatedESdf] update count: " << total_updated_count_ << std::endl;
+    // std::cout << "[updatedESdf] update count: " << total_updated_count_ << std::endl;
 }
 
 

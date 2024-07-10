@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /Mesh1
+        - /Sdf1
       Splitter Ratio: 0.5
     Tree Height: 725
   - Class: rviz_common/Selection
@@ -63,9 +64,9 @@ Visualization Manager:
       Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 255
+      Max Intensity: 237
       Min Color: 0; 0; 0
-      Min Intensity: 64
+      Min Intensity: 40
       Name: PointCloud2
       Position Transformer: XYZ
       Selectable: true
@@ -91,7 +92,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /tsdf_mesh
+        Value: /mesh
       Value: true
       Visible: true
     - Class: rviz_default_plugins/TF
@@ -114,6 +115,21 @@ Visualization Manager:
             {}
       Update Interval: 0
       Value: true
+    - Class: sdf_rviz_plugins/Sdf
+      ColorMode: Gray
+      ColorSource: Distance
+      Enabled: true
+      Height: 0.5
+      Name: Sdf
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /layer
+      Value: true
+      Visible: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -160,25 +176,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.650569438934326
+      Distance: 8.868507385253906
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0
-        Y: 0
-        Z: 0
+        X: 0.37601375579833984
+        Y: -0.9740994572639465
+        Z: -0.40673360228538513
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.38539719581604
+      Pitch: 0.8397971391677856
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 4.573575019836426
+      Yaw: 0.9854103922843933
     Saved: ~
 Window Geometry:
   Displays:

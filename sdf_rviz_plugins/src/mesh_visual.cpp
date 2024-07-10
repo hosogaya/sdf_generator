@@ -122,7 +122,7 @@ void MeshVisual::setMessage(
             // delete empty mesh blocks
             if (mesh_block.x.size() == 0)
             {
-                std::cout << "[MeshVisual] Mesh block size is zero" << std::endl;
+                // std::cout << "[MeshVisual] Mesh block size is zero" << std::endl;
                 scene_manager_->destroyManualObject(it->second);
                 object_map_.erase(it);
                 continue;
@@ -185,7 +185,7 @@ void MeshVisual::setMessage(
 
         ogre_object->end();
     }
-    std::cout << "[MeshVisual] object map size: " << object_map_.size() << std::endl;
+    // std::cout << "[MeshVisual] object map size: " << object_map_.size() << std::endl;
 }
 
 void MeshVisual::setEnabled(bool enabled)

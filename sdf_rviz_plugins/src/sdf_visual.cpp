@@ -57,7 +57,8 @@ void SdfVisual::setMessage(
 
     manual_object_->clear();
     if (cols == 0 || rows == 0) return;
-
+    std::cout << "[SdfVisual::setMessage] cols: " << cols << ", rows: " << rows << std::endl;
+    std::cout << "[SdfVisual::setMessage] setting color map status" << std::endl;
     // set color map status
     if (color_source_ == ColorSource::Distance)
     {
@@ -107,10 +108,15 @@ void SdfVisual::setMessage(
     manual_object_->estimateVertexCount(vertices_num);
     manual_object_->begin(material_name_, Ogre::RenderOperation::OT_TRIANGLE_LIST, "rviz_rendering");
 
+    size_t object_counter = 0;
+    size_t block_counter = 0;
+    std::cout << "[SdfVisual::setMessage] creating objects" << std::endl;
     for (const auto& block_index: block_indices)
     {
         if (block_index.z() != height_index) continue;
+        ++block_counter;
         auto block_ptr = layer->getBlockConstPtr(block_index);
+        
         for (size_t i=0; i<block_ptr->voxelsPerSide(); ++i)
         {
             for (size_t j=0; j<block_ptr->voxelsPerSide(); ++j)
@@ -158,7 +164,7 @@ void SdfVisual::setMessage(
                         } // end of extract the data
                     }
                 } // end of square search          
-
+                
                 // set objects
                 if (vertices.size() > 2)
                 {
@@ -166,6 +172,7 @@ void SdfVisual::setMessage(
 
                     for (size_t m=1; m<vertices.size() -1; ++m)
                     {
+                        ++object_counter;
                         manual_object_->position(vertices[m-1]);
                         manual_object_->normal(normal);
                         manual_object_->colour(colors[m-1]);
@@ -185,8 +192,9 @@ void SdfVisual::setMessage(
 
     manual_object_->end();
     material_->getTechnique(0)->setLightingEnabled(false);
-    material_->getTechnique(0)->setSceneBlending(Ogre::SBT_REPLACE);
-    material_->getTechnique(0)->setDepthWriteEnabled(true);
+    material_->getTechnique(0)->setColourWriteEnabled(true);
+
+    std::cout << "[SdfVisual::setMessage] block num: " << block_counter << ", object num: " << object_counter << std::endl;
 }
 
 void SdfVisual::setEnabled(bool enabled)

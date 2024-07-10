@@ -122,11 +122,11 @@ inline Layer<TsdfVoxel>::Ptr fromMsg(const sdf_msgs::msg::Layer& msg)
     {
         BlockIndex index(block.x_index, block.y_index, block.z_index);
         Point origin = calOrigin(index, layer->blockSize());
-        Block<TsdfVoxel>::Ptr block_ptr = std::make_shared<Block<TsdfVoxel>>(layer->voxelSize(), layer->voxelsPerSide(), origin);
+        Block<TsdfVoxel>::Ptr block_ptr = std::make_shared<Block<TsdfVoxel>>(layer->voxelsPerSide(), layer->voxelSize(), origin);
 
         for (size_t i=0; i<block_ptr->numVoxels(); ++i)
         {
-            auto voxel = block_ptr->getVoxel(i);
+            auto& voxel = block_ptr->getVoxel(i);
             if (block.voxels[i].has_data)
             {
                 voxel.distance_ = block.voxels[i].distance;
