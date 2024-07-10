@@ -1,4 +1,4 @@
-sdf_msgs/TsdfBlock[] blocks
+sdf_msgs/Block[] blocks
 
 uint8 voxels_per_side
 float32 voxel_size 
