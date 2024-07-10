@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(sdf_msgs REQUIRED)
 find_package(sdf_generator REQUIRED)
+find_package(sdf_generator_ros REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -24,6 +25,8 @@ set(sdf_rviz_plugins_headers_to_moc
   include/sdf_rviz_plugins/material_loader.h
   include/sdf_rviz_plugins/mesh_visual.h
   include/sdf_rviz_plugins/mesh_display.h
+  include/sdf_rviz_plugins/sdf_visual.h
+  include/sdf_rviz_plugins/sdf_display.h
 )
 
 foreach(header "${sdf_rviz_plugins_headers_to_moc}")
@@ -35,12 +38,15 @@ set (sources
   src/material_loader.cpp
   src/mesh_visual.cpp
   src/mesh_display.cpp
+  src/sdf_visual.cpp
+  src/sdf_display.cpp
 )
 
 set (dependencies
   rclcpp
   sdf_msgs
   sdf_generator
+  sdf_generator_ros
   rviz_common
   rviz_rendering
 )

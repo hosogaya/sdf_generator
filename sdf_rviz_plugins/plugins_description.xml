@@ -2,4 +2,7 @@
     <class name="sdf_rviz_plugins/Mesh" type="sdf_rviz_plugins::MeshDisplay" base_class_type="rviz_common::Display">
         <description>mesh display</description>
     </class>
+    <class name="sdf_rviz_plugins/Sdf" type="sdf_rviz_plugins::SdfDisplay" base_class_type="rviz_common::Display">
+        <description>sdf display</description>
+    </class>
 </library>

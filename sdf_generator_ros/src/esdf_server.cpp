@@ -25,7 +25,8 @@ void EsdfServer::layerTimerCallback()
         bool clear_updated_flag_esdf = true;
         esdf_integrator_->updateFromTsdfLayer(clear_updated_flag_esdf);
         sdf_msgs::msg::Layer::UniquePtr msg = toMsg(esdf_map_->getEsdfLayerPtr(), tsdf_map_->getTsdfLayerPtr());
-
+        msg->header.frame_id = world_frame_;
+        msg->header.stamp = last_point_cloud_time_;
         RCLCPP_INFO_STREAM(get_logger(), "[EsdfServer::layerTimerCallback] msg block size: " << msg->blocks.size());
         pub_layer_->publish(std::move(msg));
     }

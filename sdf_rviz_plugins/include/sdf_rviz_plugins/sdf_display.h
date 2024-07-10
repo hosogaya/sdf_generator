@@ -12,6 +12,7 @@
 
 #include <sdf_msgs/msg/layer.hpp>
 #include <sdf_rviz_plugins/sdf_visual.h>
+#include <Eigen/Core>
 
 namespace sdf_rviz_plugins
 {
@@ -29,7 +30,7 @@ public:
 
 protected:
     void processMessage(sdf_msgs::msg::Layer::ConstPtr msg) override;
-    void updateTransform(const rclcpp::Time& stamp);
+    bool updateTransform(const rclcpp::Time& stamp);
 
     std::shared_ptr<rviz_common::properties::BoolProperty> visible_property_;
     std::shared_ptr<rviz_common::properties::FloatProperty> height_property_;

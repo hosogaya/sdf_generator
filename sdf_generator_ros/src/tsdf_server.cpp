@@ -3,7 +3,8 @@
 namespace sdf_generator
 {
 TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
-: rclcpp::Node("tsdf_server", options)
+: rclcpp::Node("tsdf_server", options), 
+  last_point_cloud_time_(now())
 {
     /**
      * Publisher and Subscriber
@@ -199,11 +200,16 @@ void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniqueP
 
     // integrating
     tsdf_integrator_->integratePointArray(tf_global2current, points_c, normals_c, colors, false);
+
+    // update time stamp
+    last_point_cloud_time_ = sub_time;
 }
 
 void TsdfServer::layerTimerCallback()
 {
     sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
+    layer_msg->header.frame_id = world_frame_;
+    layer_msg->header.stamp = last_point_cloud_time_;
     RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
     pub_layer_->publish(std::move(layer_msg));
 }

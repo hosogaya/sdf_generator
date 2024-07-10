@@ -72,6 +72,8 @@ protected:
     std::shared_ptr<MeshLayer> mesh_layer_;
     std::shared_ptr<MeshIntegrator<TsdfVoxel>> mesh_integrator_;
     ColorMode mesh_color_mode_;
+
+    rclcpp::Time last_point_cloud_time_;
 };
 
 }

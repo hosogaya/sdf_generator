@@ -42,7 +42,8 @@
                 "/opt/ros/humble/include/pluginlib",
                 "/opt/ros/humble/include/ament_index_cpp",
                 "/opt/ros/humble/include/rviz_rendering",
-                "${workspaceFolder}/sdf_generator/include"
+                "${workspaceFolder}/sdf_generator/include",
+                "/usr/include/pcl-1.10"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

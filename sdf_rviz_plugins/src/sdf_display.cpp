@@ -1,6 +1,6 @@
 #include <sdf_rviz_plugins/sdf_display.h>
 
-namespace sdf_rivz_plugins
+namespace sdf_rviz_plugins
 {
 
 SdfDisplay::SdfDisplay()
@@ -36,7 +36,7 @@ SdfDisplay::SdfDisplay()
     color_source_property_->addOption("Gradient", 1);
 }
 
-void SdfDisplay::~SdfDisplay() {}
+SdfDisplay::~SdfDisplay() {}
 
 void SdfDisplay::onInitialize()
 {
@@ -51,10 +51,22 @@ void SdfDisplay::reset()
 
 void SdfDisplay::processMessage(sdf_msgs::msg::Layer::ConstPtr msg)
 {
+    if (!visual_)
+    {
+        std::cout << "[SdfDisplay::processMessage] creating SdfVisual instance" << std::endl;
+        visual_ = std::make_unique<SdfVisual>(context_->getSceneManager(), scene_node_);
+        visibleSlot();
+        heightSlot();
+        colorModeSlot();
+        colorSourceSlot();
+    }
 
+    visual_->setFrameId(msg->header.frame_id);
+    if (updateTransform(msg->header.stamp))
+        visual_->setMessage(msg);
 }
 
-void SdfDisplay::updateTransform(const rclcpp::Time& stamp)
+bool SdfDisplay::updateTransform(const rclcpp::Time& stamp)
 {
     if (!visual_) return false;
 
@@ -76,23 +88,50 @@ void SdfDisplay::updateTransform(const rclcpp::Time& stamp)
 
 void SdfDisplay::visibleSlot()
 {
-    
+    if (visual_)
+    {
+        visual_->setEnabled(visible_property_->getBool());
+        if (visible_property_->getBool())
+        {
+            updateTransform(context_->getClock()->now());
+        }
+    }
 }
 
 
 void SdfDisplay::heightSlot()
 {
-
+    if (visual_)
+    {
+        visual_->setHeight(height_property_->getFloat());
+    }
 }
 
 void SdfDisplay::colorModeSlot()
 {
-    
+    if (visual_)
+    {
+        int color_mode = color_mode_property_->getOptionInt();
+        if (color_mode == 0)
+            visual_->setColorMode(SdfVisual::ColorMode::Rainbow);
+        else if (color_mode == 1)
+            visual_->setColorMode(SdfVisual::ColorMode::Gray);
+    }
 }
 
 void SdfDisplay::colorSourceSlot()
 {
-
+    if (visual_)
+    {
+        int color_source = color_source_property_->getOptionInt();
+        if (color_source == 0)
+            visual_->setColorSource(SdfVisual::ColorSource::Distance);
+        else if (color_source == 1)
+            visual_->setColorSource(SdfVisual::ColorSource::Gradient);
+    }
 }
 
 }
+
+#include <pluginlib/class_list_macros.hpp>
+PLUGINLIB_EXPORT_CLASS(sdf_rviz_plugins::SdfDisplay, rviz_common::Display)

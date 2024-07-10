@@ -114,7 +114,7 @@ inline sdf_msgs::msg::Layer::UniquePtr toMsg(const Layer<EsdfVoxel>::Ptr esdf_la
     return msg;
 }
 
-inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::Layer& msg)
+inline Layer<TsdfVoxel>::Ptr fromMsg(const sdf_msgs::msg::Layer& msg)
 {
     Layer<TsdfVoxel>::Ptr layer = std::make_shared<Layer<TsdfVoxel>>(msg.voxel_size, msg.voxels_per_side);
 
@@ -127,8 +127,7 @@ inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::Layer& msg)
         for (size_t i=0; i<block_ptr->numVoxels(); ++i)
         {
             auto voxel = block_ptr->getVoxel(i);
-            voxel.occupied_ = block.voxels[i].has_data;
-            if (voxel.occupied_)
+            if (block.voxels[i].has_data)
             {
                 voxel.distance_ = block.voxels[i].distance;
                 voxel.weight_ = block.voxels[i].weight;
@@ -140,6 +139,11 @@ inline Layer<TsdfVoxel>::Ptr fromMsg(sdf_msgs::msg::Layer& msg)
                 voxel.color_.r_ = block.voxels[i].color.r;
                 voxel.color_.g_ = block.voxels[i].color.g;
                 voxel.color_.b_ = block.voxels[i].color.b;
+                voxel.occupied_ = true;
+            }
+            else 
+            {
+                voxel.occupied_ = false;
             }
         }
         layer->insertBlock(std::make_pair(index, block_ptr));
