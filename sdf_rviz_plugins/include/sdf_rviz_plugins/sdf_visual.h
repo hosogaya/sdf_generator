@@ -29,7 +29,9 @@ public:
     enum class ColorSource
     {
         Distance, 
-        Gradient
+        Gradient_X,
+        Gradient_Y,
+        Gradient_Z
     };
 
 

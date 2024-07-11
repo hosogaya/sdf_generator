@@ -60,49 +60,29 @@ void SdfVisual::setMessage(
     std::cout << "[SdfVisual::setMessage] cols: " << cols << ", rows: " << rows << std::endl;
     std::cout << "[SdfVisual::setMessage] setting color map status" << std::endl;
     // set color map status
-    if (color_source_ == ColorSource::Distance)
+    float min_color_source = std::numeric_limits<float>::max();
+    float max_color_source = std::numeric_limits<float>::min();
+    int voxels_per_layer =layer->voxelsPerSide()*layer->voxelsPerSide();
+    for (const auto& block_index: block_indices)
     {
-        float min_color_source = std::numeric_limits<float>::max();
-        float max_color_source = std::numeric_limits<float>::min();
-        int voxels_per_layer =layer->voxelsPerSide()*layer->voxelsPerSide();
-        for (const auto& block_index: block_indices)
+        if (block_index.z() != height_index) continue;
+        const auto block_ptr = layer->getBlockConstPtr(block_index);
+        
+        for (size_t i=voxels_per_layer*voxel_height_index; i<(voxels_per_layer)*(voxel_height_index+1);  ++i)
         {
-            if (block_index.z() != height_index) continue;
-            const auto block_ptr = layer->getBlockConstPtr(block_index);
-            
-            for (size_t i=voxels_per_layer*voxel_height_index; i<(voxels_per_layer)*(voxel_height_index+1);  ++i)
-            {
-                const auto& voxel = block_ptr->getConstVoxel(i);
-                if (!voxel.observed_) continue;
-                if (voxel.distance_ < min_color_source) min_color_source = voxel.distance_;
-                if (voxel.distance_ > max_color_source) max_color_source = voxel.distance_; 
-            }
+            const auto& voxel = block_ptr->getConstVoxel(i);
+            if (!voxel.observed_) continue;
+            float source_value;
+            if (color_source_ == ColorSource::Distance) source_value = voxel.distance_;
+            else if (color_source_ == ColorSource::Gradient_X) source_value = voxel.gradient_.x();
+            else if (color_source_ == ColorSource::Gradient_Y) source_value = voxel.gradient_.y();
+            else if (color_source_ == ColorSource::Gradient_Z) source_value = voxel.gradient_.z();
+            if (source_value < min_color_source) min_color_source = source_value;
+            if (source_value > max_color_source) max_color_source = source_value; 
         }
-        color_map_->setMaxValue(max_color_source);
-        color_map_->setMinValue(min_color_source);
     }
-    else if (color_source_ == ColorSource::Gradient)
-    {
-        float min_color_source = std::numeric_limits<float>::max();
-        float max_color_source = std::numeric_limits<float>::min();
-        int voxels_per_layer =layer->voxelsPerSide()*layer->voxelsPerSide();
-        for (const auto& block_index: block_indices)
-        {
-            if (block_index.z() != height_index) continue;
-            const auto block_ptr = layer->getBlockConstPtr(block_index);
-            
-            for (size_t i=voxels_per_layer*voxel_height_index; i<(voxels_per_layer)*(voxel_height_index+1);  ++i)
-            {
-                const auto& voxel = block_ptr->getConstVoxel(i);
-                if (!voxel.observed_) continue;
-                float source_value = voxel.gradient_.dot(kGradientMultiplier);
-                if (source_value < min_color_source) min_color_source = source_value;
-                if (source_value > max_color_source) max_color_source = source_value;
-            }
-        }
-        color_map_->setMaxValue(max_color_source);
-        color_map_->setMinValue(min_color_source);
-    }
+    color_map_->setMaxValue(max_color_source);
+    color_map_->setMinValue(min_color_source);
 
     size_t vertices_num = 4 + 6*(cols*rows - cols - rows);
     manual_object_->estimateVertexCount(vertices_num);
@@ -249,13 +229,13 @@ Ogre::ColourValue SdfVisual::calColorValue(const sdf_generator::EsdfVoxel& voxel
 {
     float source_value;
     if (color_source_ == ColorSource::Distance)
-    {
         source_value = voxel.distance_;
-    }
-    else if (color_source_ == ColorSource::Gradient)
-    {
-        source_value = voxel.gradient_.dot(kGradientMultiplier);
-    }
+    else if (color_source_ == ColorSource::Gradient_X)
+        source_value = voxel.gradient_.x();
+    else if (color_source_ == ColorSource::Gradient_Y)
+        source_value = voxel.gradient_.y();
+    else if (color_source_ == ColorSource::Gradient_Z)
+        source_value = voxel.gradient_.z();
 
     sdf_generator::Color color = color_map_->colorLookup(source_value);
     constexpr float color_conv_factor = 1.0/std::numeric_limits<uint8_t>::max();

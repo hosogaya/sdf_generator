@@ -33,7 +33,9 @@ SdfDisplay::SdfDisplay()
         this, SLOT(colorSourceSlot())
     );
     color_source_property_->addOption("Distance", 0);
-    color_source_property_->addOption("Gradient", 1);
+    color_source_property_->addOption("Gradient_X", 1);
+    color_source_property_->addOption("Gradient_Y", 2);
+    color_source_property_->addOption("Gradient_Z", 3);
 }
 
 SdfDisplay::~SdfDisplay() {}
@@ -127,7 +129,11 @@ void SdfDisplay::colorSourceSlot()
         if (color_source == 0)
             visual_->setColorSource(SdfVisual::ColorSource::Distance);
         else if (color_source == 1)
-            visual_->setColorSource(SdfVisual::ColorSource::Gradient);
+            visual_->setColorSource(SdfVisual::ColorSource::Gradient_X);
+        else if (color_source == 2)
+            visual_->setColorSource(SdfVisual::ColorSource::Gradient_Y);
+        else if (color_source == 3)
+            visual_->setColorSource(SdfVisual::ColorSource::Gradient_Z);
     }
 }
 
