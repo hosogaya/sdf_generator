@@ -19,10 +19,10 @@ color_map_(new sdf_generator::RainbowColorMap)
 SdfVisual::~SdfVisual() {}
 
 void SdfVisual::setMessage(
-    const sdf_msgs::msg::Layer::ConstPtr& msg
+    const sdf_msgs::msg::EsdfLayer::ConstPtr& msg
 )
 {
-    const sdf_generator::Layer<sdf_generator::TsdfVoxel>::Ptr layer = sdf_generator::fromMsg(*msg);
+    const sdf_generator::Layer<sdf_generator::EsdfVoxel>::Ptr layer = sdf_generator::msg2EsdfLayer(*msg);
     sdf_generator::BlockIndexList block_indices;
     layer->getAllAllocatedBlocks(block_indices);
     int height_index = std::floor(slice_height_*layer->blockSizeInv() + sdf_generator::kCoordinateEpsilon);
@@ -73,7 +73,7 @@ void SdfVisual::setMessage(
             for (size_t i=voxels_per_layer*voxel_height_index; i<(voxels_per_layer)*(voxel_height_index+1);  ++i)
             {
                 const auto& voxel = block_ptr->getConstVoxel(i);
-                if (!voxel.occupied_) continue;
+                if (!voxel.observed_) continue;
                 if (voxel.distance_ < min_color_source) min_color_source = voxel.distance_;
                 if (voxel.distance_ > max_color_source) max_color_source = voxel.distance_; 
             }
@@ -94,7 +94,7 @@ void SdfVisual::setMessage(
             for (size_t i=voxels_per_layer*voxel_height_index; i<(voxels_per_layer)*(voxel_height_index+1);  ++i)
             {
                 const auto& voxel = block_ptr->getConstVoxel(i);
-                if (!voxel.occupied_) continue;
+                if (!voxel.observed_) continue;
                 float source_value = voxel.gradient_.dot(kGradientMultiplier);
                 if (source_value < min_color_source) min_color_source = source_value;
                 if (source_value > max_color_source) max_color_source = source_value;
@@ -133,8 +133,8 @@ void SdfVisual::setMessage(
                         if (voxel_index.x() < block_ptr->voxelsPerSide()
                         && voxel_index.y() < block_ptr->voxelsPerSide())
                         {
-                            const sdf_generator::TsdfVoxel& voxel = block_ptr->getConstVoxel(voxel_index);
-                            if (!voxel.occupied_) continue;
+                            const sdf_generator::EsdfVoxel& voxel = block_ptr->getConstVoxel(voxel_index);
+                            if (!voxel.observed_) continue;
 
                             sdf_generator::Point position = block_ptr->calCoordinate(voxel_index);
                             vertices.push_back(Ogre::Vector3(position.x(), position.y(), slice_height_));
@@ -155,8 +155,8 @@ void SdfVisual::setMessage(
                             }
                             auto new_block_ptr = layer->getBlockConstPtr(new_block_index);
                             if (!new_block_ptr) continue;
-                            const sdf_generator::TsdfVoxel& voxel = new_block_ptr->getConstVoxel(voxel_index);
-                            if (!voxel.occupied_) continue;
+                            const sdf_generator::EsdfVoxel& voxel = new_block_ptr->getConstVoxel(voxel_index);
+                            if (!voxel.observed_) continue;
 
                             sdf_generator::Point position = new_block_ptr->calCoordinate(voxel_index);
                             vertices.push_back(Ogre::Vector3(position.x(), position.y(), slice_height_));
@@ -245,7 +245,7 @@ size_t SdfVisual::getRows(
     return (max_row - min_row + 1)*voxels_per_side;
 }
 
-Ogre::ColourValue SdfVisual::calColorValue(const sdf_generator::TsdfVoxel& voxel)
+Ogre::ColourValue SdfVisual::calColorValue(const sdf_generator::EsdfVoxel& voxel)
 {
     float source_value;
     if (color_source_ == ColorSource::Distance)

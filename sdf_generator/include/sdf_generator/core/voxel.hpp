@@ -36,24 +36,17 @@ inline std::ostream& operator<<(std::ostream& os, const TsdfVoxel& voxel)
 
 struct EsdfVoxel
 {
+    // distance with consdering inner distance
     Scalar distance_ = 0.0;
+    // distance without inner distance
     Scalar raw_distance_ = 0.0;
     bool observed_ = false;
 
-    /**
-     * Whether the voxel was copied from the TSDF (false) or created from a pose
-     * or some other source (true). This member is not serialized!!!
-     * Used mainly for path planning
-     */
-    bool hallucinated_ = false;
-    bool in_queue_ = false;
+    Vector3 gradient_ = Vector3::Zero();
+
+    // Whether the ESDF value is fixed as the same value of the colocated TSDF
     bool fixed_ = false;
 
-     /**
-     * Relative direction toward parent. If itself, then either uninitialized
-     * or in the fixed frontier. (used only by Voxblox)
-     */
-    Eigen::Vector3i parent_ = Eigen::Vector3i::Zero();
     
     /**
      * Whether the voxel is behind (negative value) or in front of the surface
@@ -71,12 +64,6 @@ struct EsdfVoxel
      * only for the visualization (used in mapping error evaluation)
      */
     float error_ = 0.0f;
-
-    /**
-     * Indicator for update scheduling
-     * (used only for voxedt esdf integrator)
-     */
-    float raise_ = -1.0f;
 
     /**
      * Index of this voxel's closest occupied voxel

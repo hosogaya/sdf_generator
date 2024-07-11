@@ -51,7 +51,7 @@ protected:
     rclcpp::TimerBase::SharedPtr mesh_timer_;
     void meshTimerCallback();
 
-    rclcpp::Publisher<sdf_msgs::msg::Layer>::SharedPtr pub_layer_;
+    rclcpp::Publisher<sdf_msgs::msg::TsdfLayer>::SharedPtr pub_tsdf_layer_;
     rclcpp::Publisher<sdf_msgs::msg::Mesh>::SharedPtr pub_mesh_;
 
     bool getTransform(const std::string& target, const std::string& source, 

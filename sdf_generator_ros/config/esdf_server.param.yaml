@@ -11,10 +11,9 @@ esdf_server:
     esdf_num_neighbor: 24 # only support 24
     esdf_patch_on: true # true: high accuracy. false: Fast execution
     esdf_early_break: false # true: Fast execution. false: high accuracy
-    esdf_finer_esdf_on: false # true: calculate inner voxel distance from the voxel center to the surface
     esdf_fixed_band_esdf_on: false # use a fixed band for esdf to directly copy the tsdf value
-    esdf_gradient_sign: 1.0 # 1.0 or -1.0
     esdf_allocate_tsdf_in_range: false # allocate tsdf voxel in range boundray
     esdf_range_boundary_offset_x: 10 # Local map boundary size (unit: voxel)
     esdf_range_boundary_offset_y: 10 #
     esdf_range_boundary_offset_z: 5 #
+    pub_tsdf_layer: true

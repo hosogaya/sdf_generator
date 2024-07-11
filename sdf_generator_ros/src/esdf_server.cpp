@@ -5,6 +5,17 @@ namespace sdf_generator
 EsdfServer::EsdfServer(const rclcpp::NodeOptions options)
 : TsdfServer(options)
 {
+    pub_esdf_layer_ = create_publisher<sdf_msgs::msg::EsdfLayer>
+    (
+        "output/esdf_layer", 1
+    );
+
+    publish_tsdf_layer_ = declare_parameter<bool>("pub_tsdf_layer", false);
+    if (!publish_tsdf_layer_)
+    {
+        pub_tsdf_layer_.reset();
+    }
+
     auto esdf_config = getEsdfMapConfig(get_node_logging_interface(), get_node_parameters_interface());
     auto esdf_integrator_config = getEsdfIntegratorConfig(get_node_logging_interface(), get_node_parameters_interface());
 
@@ -24,11 +35,19 @@ void EsdfServer::layerTimerCallback()
         RCLCPP_INFO(get_logger(), "[esdfTimerCallback] updating the esdf layer");
         bool clear_updated_flag_esdf = true;
         esdf_integrator_->updateFromTsdfLayer(clear_updated_flag_esdf);
-        sdf_msgs::msg::Layer::UniquePtr msg = toMsg(esdf_map_->getEsdfLayerPtr(), tsdf_map_->getTsdfLayerPtr());
+        sdf_msgs::msg::EsdfLayer::UniquePtr msg = esdfLayer2Msg(esdf_map_->getEsdfLayerPtr());
         msg->header.frame_id = world_frame_;
         msg->header.stamp = last_point_cloud_time_;
         RCLCPP_INFO_STREAM(get_logger(), "[EsdfServer::layerTimerCallback] msg block size: " << msg->blocks.size());
-        pub_layer_->publish(std::move(msg));
+        pub_esdf_layer_->publish(std::move(msg));
+    }
+
+    if (publish_tsdf_layer_)
+    {
+        sdf_msgs::msg::TsdfLayer::UniquePtr msg = tsdfLayer2Msg(tsdf_map_->getTsdfLayerPtr());
+        msg->header.frame_id = world_frame_;
+        msg->header.stamp = last_point_cloud_time_;
+        pub_tsdf_layer_->publish(std::move(msg));
     }
 }
 }

@@ -9,7 +9,7 @@
 
 #include <rviz_common/uniform_string_stream.hpp>
 
-#include <sdf_msgs/msg/layer.hpp>
+#include <sdf_msgs/msg/esdf_layer.hpp>
 #include <sdf_generator_ros/msg_conversion.hpp>
 #include <sdf_generator/point_cloud/color_maps/rainbow_color_map.hpp>
 #include <sdf_generator/point_cloud/color_maps/gray_scale_color_map.hpp>
@@ -42,7 +42,7 @@ public:
     virtual ~SdfVisual();
 
     void setMessage(
-        const sdf_msgs::msg::Layer::ConstPtr& msg
+        const sdf_msgs::msg::EsdfLayer::ConstPtr& msg
     );
 
     void setEnabled(bool enabled);
@@ -71,7 +71,7 @@ public:
 private:
     size_t getCols(const sdf_generator::BlockIndexList& blocks, const size_t voxels_per_side, const int height_index) const; 
     size_t getRows(const sdf_generator::BlockIndexList& blocks, const size_t voxels_per_side, const int height_index) const; 
-    Ogre::ColourValue calColorValue(const sdf_generator::TsdfVoxel& voxel);
+    Ogre::ColourValue calColorValue(const sdf_generator::EsdfVoxel& voxel);
 
     Ogre::SceneNode* frame_node_;
     Ogre::SceneManager* scene_manager_;

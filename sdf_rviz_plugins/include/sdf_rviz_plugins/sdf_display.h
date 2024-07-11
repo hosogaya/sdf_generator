@@ -10,13 +10,13 @@
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
-#include <sdf_msgs/msg/layer.hpp>
+#include <sdf_msgs/msg/esdf_layer.hpp>
 #include <sdf_rviz_plugins/sdf_visual.h>
 #include <Eigen/Core>
 
 namespace sdf_rviz_plugins
 {
-class SdfDisplay: public rviz_common::MessageFilterDisplay<sdf_msgs::msg::Layer>
+class SdfDisplay: public rviz_common::MessageFilterDisplay<sdf_msgs::msg::EsdfLayer>
 {
     Q_OBJECT
 public:
@@ -29,7 +29,7 @@ public:
     void reset() override;
 
 protected:
-    void processMessage(sdf_msgs::msg::Layer::ConstPtr msg) override;
+    void processMessage(sdf_msgs::msg::EsdfLayer::ConstPtr msg) override;
     bool updateTransform(const rclcpp::Time& stamp);
 
     std::shared_ptr<rviz_common::properties::BoolProperty> visible_property_;

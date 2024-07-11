@@ -25,7 +25,12 @@ public:
     PointCloudProcessor(const CommonConfig& common_config);
     ~PointCloudProcessor();
 
-    void process(PointArray& point, ColorArray& color, Vector3Array& normal);
+    /**
+     * @param points: the coordinate of the nearest point in each direction.
+     * @param colors: the color of the nearest point in each direction. 
+     * @param nomarls: the normal vector towards the sensor to the surface in each direction. 
+     */
+    void process(PointArray& points, ColorArray& colors, Vector3Array& normals);
 
 protected:
     void projectPointCloudToImage(

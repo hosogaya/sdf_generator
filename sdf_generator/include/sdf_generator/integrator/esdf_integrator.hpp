@@ -25,7 +25,6 @@ public:
     {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-        Scalar max_distance_ = 10.0f;
         Scalar default_distance_ = 10.0f;
         Scalar max_behind_surface_ = 1.0f;
         Scalar band_distance_ = 1.0f;
@@ -53,20 +52,8 @@ public:
         // Early break the increasing update or not
         bool early_break_ = true;
 
-        /**
-         * Use finer ESDF with the consideration of the inner voxel distance
-         * from the voxel center to the actual surface.
-         * the non-projective TSDF and signed distance gradient are needed
-         * for the calculation.
-         */
-        bool finer_esdf_on_ = false;
-
         // use a fixed band for esdf to directly copy the tsdf value
         bool fixed_band_esdf_on_ = false;
-
-        // sign (direction) of the gradient, towards or opposite to the surface,
-        // select from 1.0 or -1.0
-        float gradient_sign_ = 1.0f;
 
         bool allocate_tsdf_in_range_ = false;
 
@@ -122,11 +109,9 @@ public:
         updated_voxel_.clear();
     }
 
-    float getEsdfMaxDistance() const {return config_.max_distance_;}
 
     void setEsdfMaxDistance(float max_distance) 
     {
-        config_.max_distance_ = max_distance;
         if (config_.default_distance_ < max_distance) 
             config_.default_distance_ = max_distance;
     }

@@ -49,7 +49,7 @@ void SdfDisplay::reset()
     visual_.reset();
 }
 
-void SdfDisplay::processMessage(sdf_msgs::msg::Layer::ConstPtr msg)
+void SdfDisplay::processMessage(sdf_msgs::msg::EsdfLayer::ConstPtr msg)
 {
     if (!visual_)
     {

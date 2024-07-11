@@ -21,11 +21,12 @@ public:
     virtual ~EsdfServer();
 
 protected:
+    rclcpp::Publisher<sdf_msgs::msg::EsdfLayer>::SharedPtr pub_esdf_layer_;
     virtual void layerTimerCallback() override;
 
     std::shared_ptr<EsdfMap> esdf_map_;
     std::unique_ptr<EsdfIntegrator> esdf_integrator_;
 
-    bool publish_esdf_layer_ = true;
+    bool publish_tsdf_layer_ = true;
 };
 }

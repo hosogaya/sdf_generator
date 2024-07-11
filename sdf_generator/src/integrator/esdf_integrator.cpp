@@ -62,10 +62,7 @@ void EsdfIntegrator::updateFromTsdfBlocks(const BlockIndexList& tsdf_blocks)
 
             bool current_occupied;
 
-            if (config_.finer_esdf_on_)
-                current_occupied = isOccupied(tsdf_voxel.distance_, tsdf_voxel.gradient_);
-            else
-                current_occupied = isOccupied(tsdf_voxel.distance_);
+            current_occupied = isOccupied(tsdf_voxel.distance_, tsdf_voxel.gradient_);
 
             if (esdf_voxel.self_idx_(0) == UNDEF)
             {   
@@ -100,6 +97,7 @@ void EsdfIntegrator::updateFromTsdfBlocks(const BlockIndexList& tsdf_blocks)
             {
                 // In fixed band, initialize with the current tsdf.
                 esdf_voxel.distance_ = tsdf_voxel.distance_;
+                esdf_voxel.gradient_ = tsdf_voxel.gradient_;
                 esdf_voxel.fixed_ = true;
             }
             else
@@ -362,7 +360,7 @@ void EsdfIntegrator::updateESDF()
     }
 
     // std::cout << "[updateESDF] update_queue size: " << update_queue_.size() << std::endl;
-    // Esdf decreasing unupdating (BFS based on priority queue) 
+    // Esdf decreasing updating (BFS based on priority queue) 
     int updated_count = 0;
     int patch_count = 0;
     while (!update_queue_.empty())
@@ -376,36 +374,33 @@ void EsdfIntegrator::updateESDF()
         // if the voxel lies in the fixed band, then default value is its tsdf
         // if out, apply the finer esdf correction, add the sub-voxel part
         // of the esdf from the voxel center to the actual surface
-        if (config_.finer_esdf_on_)
+        if (!cur_voxel->fixed_)
         {
-            // out of the fixed band
-            if (!cur_voxel->fixed_)
+            TsdfVoxel* coc_tsdf_voxel = tsdf_layer_->getVoxelPtr(cur_voxel->coc_idx_);
+            if (coc_tsdf_voxel->gradient_.norm() > kEpsilon
+            && coc_tsdf_voxel->occupied_)
             {
-                TsdfVoxel* coc_tsdf_voxel = tsdf_layer_->getVoxelPtr(cur_voxel->coc_idx_);
-                if (coc_tsdf_voxel->gradient_.norm() > kEpsilon
-                && coc_tsdf_voxel->occupied_)
-                {
-                    // gurantee the gradient here is a unit vector
-                    coc_tsdf_voxel->gradient_.normalize();
-                    Point cur_voxel_center = cur_voxel_index.cast<Scalar>()*esdf_voxel_size_;
-                    Point coc_voxel_center = cur_voxel->coc_idx_.cast<Scalar>()*esdf_voxel_size_;
-                    // gradient is pointing toward the sensor, sign should be positive
-                    Point coc_voxel_surface = coc_voxel_center + config_.gradient_sign_
-                                                                *coc_tsdf_voxel->gradient_
-                                                                *coc_tsdf_voxel->distance_;
-                    
-                    cur_voxel->distance_ = (coc_voxel_surface - cur_voxel_center).norm();
-                    if (cur_voxel->behind_) cur_voxel->distance_ *= -1.0f;
-                }
-                else cur_voxel->distance_ = cur_voxel->raw_distance_;
+                // gurantee the gradient here is a unit vector
+                coc_tsdf_voxel->gradient_.normalize();
+                Point cur_voxel_center = cur_voxel_index.cast<Scalar>()*esdf_voxel_size_;
+                Point coc_voxel_center = cur_voxel->coc_idx_.cast<Scalar>()*esdf_voxel_size_;
+                // gradient is pointing toward the sensor, sign should be positive
+                Point coc_voxel_surface = coc_voxel_center + coc_tsdf_voxel->gradient_
+                                                            *coc_tsdf_voxel->distance_;
+                
+                cur_voxel->distance_ = (coc_voxel_surface - cur_voxel_center).norm();
+                cur_voxel->gradient_ = (cur_voxel_center - coc_voxel_surface)/cur_voxel->distance_;
+                if (cur_voxel->behind_) cur_voxel->distance_ *= -1.0f;
+            }
+            else 
+            {
+                Point cur_voxel_center = cur_voxel_index.cast<Scalar>()*esdf_voxel_size_;
+                Point coc_voxel_center = cur_voxel->coc_idx_.cast<Scalar>()*esdf_voxel_size_;
+                cur_voxel->distance_ = cur_voxel->raw_distance_;
+                cur_voxel->gradient_ = cur_voxel_center - coc_voxel_center;
             }
         }
-        else 
-        {
-            // use the original voxel center to center distance
-            if (!cur_voxel->fixed_ || !config_.fixed_band_esdf_on_)
-                cur_voxel->distance_ = cur_voxel->raw_distance_;
-        }
+
         ++updated_count;
         ++total_updated_count_;
 

@@ -7,19 +7,6 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
   last_point_cloud_time_(now())
 {
     /**
-     * Publisher and Subscriber
-    */
-    pub_layer_ = create_publisher<sdf_msgs::msg::Layer>(
-        "output/layer", 1
-    );
-    pub_mesh_ = create_publisher<sdf_msgs::msg::Mesh>(
-        "output/mesh", 1
-    );
-    sub_point_cloud_ = create_subscription<sensor_msgs::msg::PointCloud2>(
-        "input/point_cloud", 1, std::bind(&TsdfServer::pointCloudCallback, this, std::placeholders::_1)
-    );
-
-    /**
      * Parameters
     */
     auto map_config = getTsdfMapConfig(this->get_node_logging_interface(), this->get_node_parameters_interface());
@@ -32,6 +19,19 @@ TsdfServer::TsdfServer(const rclcpp::NodeOptions options)
     double layer_publish_hz = declare_parameter<double>("layer_publish_hz", 1.0);
     double mesh_publish_hz = declare_parameter<double>("mesh_publish_hz", 1.0);
     std::string mesh_color_mode_string = declare_parameter("mesh_color_mode", "color");
+
+    /**
+     * Publisher and Subscriber
+    */
+    pub_tsdf_layer_ = create_publisher<sdf_msgs::msg::TsdfLayer>(
+        "output/tsdf_layer", 1
+    );
+    pub_mesh_ = create_publisher<sdf_msgs::msg::Mesh>(
+        "output/mesh", 1
+    );
+    sub_point_cloud_ = create_subscription<sensor_msgs::msg::PointCloud2>(
+        "input/point_cloud", 1, std::bind(&TsdfServer::pointCloudCallback, this, std::placeholders::_1)
+    );
 
     /**
      * Construction
@@ -207,11 +207,11 @@ void TsdfServer::pointCloudCallback(const sensor_msgs::msg::PointCloud2::UniqueP
 
 void TsdfServer::layerTimerCallback()
 {
-    sdf_msgs::msg::Layer::UniquePtr layer_msg = toMsg(tsdf_map_->getTsdfLayerPtr());
+    sdf_msgs::msg::TsdfLayer::UniquePtr layer_msg = tsdfLayer2Msg(tsdf_map_->getTsdfLayerPtr());
     layer_msg->header.frame_id = world_frame_;
     layer_msg->header.stamp = last_point_cloud_time_;
     RCLCPP_INFO(get_logger(), "block num: %ld", layer_msg->blocks.size());
-    pub_layer_->publish(std::move(layer_msg));
+    pub_tsdf_layer_->publish(std::move(layer_msg));
 }
 
 

@@ -364,10 +364,6 @@ inline EsdfIntegrator::Config getEsdfIntegratorConfig(
     int i_value;
     bool b_value;
 
-    d_value = config.max_distance_;
-    if (getDoubleParam("esdf_max_distance", node_logger, node_params, d_value))
-        config.max_distance_ = d_value;
-
     d_value = config.default_distance_;
     if (getDoubleParam("esdf_default_distance", node_logger, node_params, d_value))
         config.default_distance_ = d_value;
@@ -404,17 +400,9 @@ inline EsdfIntegrator::Config getEsdfIntegratorConfig(
     if (getBoolParam("esdf_early_break", node_logger, node_params, b_value))
         config.early_break_ = b_value;
 
-    b_value = config.finer_esdf_on_;
-    if (getBoolParam("esdf_finer_esdf_on", node_logger, node_params, b_value))
-        config.finer_esdf_on_ = b_value;
-
     b_value = config.fixed_band_esdf_on_;
     if (getBoolParam("esdf_fixed_band_esdf_on", node_logger, node_params, b_value))
         config.fixed_band_esdf_on_ = b_value;
-
-    d_value = config.gradient_sign_;
-    if (getDoubleParam("esdf_gradient_sign", node_logger, node_params, d_value))
-        config.gradient_sign_ = d_value >=0.0 ? 1.0 : -1.0;
     
     b_value = config.allocate_tsdf_in_range_;
     if (getBoolParam("esdf_allocate_tsdf_in_range", node_logger, node_params, b_value))

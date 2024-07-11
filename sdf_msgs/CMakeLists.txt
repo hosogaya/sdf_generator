@@ -15,9 +15,9 @@ find_package(geometry_msgs)
 find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Voxel.msg"
-  "msg/Block.msg"
-  "msg/Layer.msg"
+  "msg/TsdfVoxel.msg"
+  "msg/TsdfBlock.msg"
+  "msg/TsdfLayer.msg"
   "msg/EsdfVoxel.msg"
   "msg/EsdfBlock.msg"
   "msg/EsdfLayer.msg"
