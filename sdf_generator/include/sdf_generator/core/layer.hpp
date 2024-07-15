@@ -123,6 +123,16 @@ public:
         return &(block_ptr->getVoxel(local_voxel_index));
     }
 
+    inline VoxelType* getVoxelConstPtr(const GlobalIndex& global_index) 
+    {
+        const BlockIndex block_index = calBlockIndex(global_index, voxels_per_side_inv_);
+        if (!hasBlock(block_index)) return nullptr;
+        const VoxelIndex local_voxel_index = calLocalVoxelIndex(global_index, voxels_per_side_);
+        typename BlockType::ConstPtr block_ptr = this->getBlockConstPtr(block_index);
+        
+        return &(block_ptr->getConstVoxel(local_voxel_index));
+    }
+
     bool hasBlock(const BlockIndex& block_index) const
     {
         return block_map_.count(block_index) > 0;
